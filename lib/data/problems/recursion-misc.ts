@@ -1,0 +1,145 @@
+import { expand, type Raw } from "./_build";
+
+/* ------------------------------ backtracking ------------------------------- */
+const backtracking: Raw[] = [
+  { id: "subsets", t: "Subsets", d: "M", tier: 150, p: "sub", c: "am,me,go,ms,fk", lc: 78, f: 5, m: true, e: 25,
+    a: "Take or skip each index, recording a copy of the path at the leaves.", T: "O(n*2^n)", S: "O(n)", v: ["subsets-ii"] },
+  { id: "subsets-ii", t: "Subsets II", d: "M", tier: 150, p: "sub", c: "am,me,fk", lc: 90, slug: "subsets-ii", f: 4, e: 30,
+    a: "Sort first, then skip a value equal to its previous sibling at the same depth.", T: "O(n*2^n)", S: "O(n)" },
+  { id: "combination-sum", t: "Combination Sum", d: "M", tier: 75, p: "sub", c: "am,go,ms,me,ub,fk,ab", lc: 39, f: 5, m: true, e: 30,
+    a: "Recurse allowing reuse of the current index, pruning when the remainder goes negative.", T: "O(2^target)", S: "O(target)", v: ["combination-sum-ii"] },
+  { id: "combination-sum-ii", t: "Combination Sum II", d: "M", tier: 150, p: "sub", c: "am,go,fk", lc: 40, slug: "combination-sum-ii", f: 4, e: 30 },
+  { id: "permutations", t: "Permutations", d: "M", tier: 150, p: "perm", c: "am,go,ms,me,ad,fk", lc: 46, f: 5, m: true, e: 25,
+    a: "Swap each candidate into the current position, recurse, then swap back.", T: "O(n!*n)", S: "O(n)", v: ["permutations-ii"] },
+  { id: "permutations-ii", t: "Permutations II", d: "M", tier: 450, p: "perm", c: "am,go,fk", lc: 47, slug: "permutations-ii", f: 3, e: 30 },
+  { id: "palindrome-partitioning", t: "Palindrome Partitioning", d: "M", tier: 150, p: "sub,idp", c: "am,go,ms,fk,ab", lc: 131, f: 4, m: true, e: 35 },
+  { id: "letter-combinations-of-a-phone-number", t: "Letter Combinations of a Phone Number", d: "M", tier: 150, p: "sub", c: "am,go,ms,me,ub,fk", lc: 17, f: 5, m: true, e: 25 },
+  { id: "n-queens", t: "N-Queens", d: "H", tier: 150, p: "gbt", c: "am,go,ms,ad,fk,sa", lc: 51, slug: "n-queens", f: 4, m: true, e: 45,
+    a: "Place one queen per row, tracking attacked columns and both diagonals in sets.", T: "O(n!)", S: "O(n)",
+    h: ["Two queens never share a row, so recurse row by row.", "A diagonal is identified by row plus column, the anti-diagonal by row minus column.", "Undo every mark when you backtrack."] },
+  { id: "sudoku-solver", t: "Sudoku Solver", d: "H", tier: 250, p: "gbt", c: "am,go,ms,ub,sa", lc: 37, f: 4, m: true, e: 50,
+    a: "Fill the first empty cell with each legal digit and recurse, undoing on failure.", T: "Exponential", S: "O(1)" },
+  { id: "rat-in-a-maze", t: "Rat in a Maze Problem", d: "M", tier: 250, p: "gbt", c: "am,ms,fk,zh", gfg: "rat-in-a-maze-problem", f: 3, m: true, e: 30 },
+  { id: "restore-ip-addresses", t: "Restore IP Addresses", d: "M", tier: 500, p: "sub", c: "am,ms,go", lc: 93, slug: "restore-ip-addresses", f: 2, e: 30 },
+  { id: "combinations", t: "Combinations", d: "M", tier: 250, p: "sub", c: "am,go,ms", lc: 77, f: 3, e: 20 },
+  { id: "combination-sum-iii", t: "Combination Sum III", d: "M", tier: 450, p: "sub", c: "am,go", lc: 216, slug: "combination-sum-iii", f: 2, e: 25 },
+  { id: "m-coloring-problem", t: "M-Coloring Problem", d: "M", tier: 250, p: "gbt", c: "am,ms,fk", gfg: "m-coloring-problem", f: 3, e: 35 },
+  { id: "knights-tour", t: "Knight Walk", d: "M", tier: 450, p: "gbt,gbfs", c: "am,sa", gfg: "steps-by-knight5927", f: 2, e: 35 },
+  { id: "expression-add-operators", t: "Expression Add Operators", d: "H", tier: 450, p: "sub", c: "go,am,me", lc: 282, f: 2, e: 55 },
+  { id: "beautiful-arrangement", t: "Beautiful Arrangement", d: "M", tier: 500, p: "perm,bmk", c: "go,am", lc: 526, f: 1, e: 30 },
+  { id: "kth-permutation-sequence", t: "Permutation Sequence", d: "H", tier: 250, p: "perm,nt", c: "am,ms,fk,go", lc: 60, slug: "permutation-sequence", f: 3, e: 40,
+    a: "Pick each digit directly using factorial block sizes instead of enumerating.", T: "O(n^2)", S: "O(n)" },
+  { id: "tower-of-hanoi", t: "Tower of Hanoi", d: "M", tier: 500, p: "sub", c: "tc,inf,zh,ms", gfg: "tower-of-hanoi-1587115621", f: 2, e: 25,
+    a: "Move n-1 to the spare peg, move the largest, then move n-1 across.", T: "O(2^n)", S: "O(n)" },
+  { id: "print-all-subsequences-sum-k", t: "Subset Sums", d: "M", tier: 450, p: "sub", c: "am,fk", gfg: "subset-sums2234", f: 2, e: 20 },
+];
+
+/* ---------------------------------- tries ---------------------------------- */
+const tries: Raw[] = [
+  { id: "implement-trie-prefix-tree", t: "Implement Trie (Prefix Tree)", d: "M", tier: 75, p: "trie", c: "am,go,ms,me,ub,bb", lc: 208, slug: "implement-trie-prefix-tree", f: 5, m: true, e: 30,
+    a: "Nodes hold a child map and an end-of-word flag; insert, search and startsWith all walk one path.", T: "O(L)", S: "O(total letters)" },
+  { id: "design-add-and-search-words-data-structure", t: "Design Add and Search Words Data Structure", d: "M", tier: 75, p: "trie", c: "am,go,me,fk", lc: 211, f: 4, m: true, e: 35,
+    a: "Trie plus DFS that branches over every child when it meets a dot wildcard.", T: "O(L) average", S: "O(total letters)" },
+  { id: "maximum-xor-of-two-numbers", t: "Maximum XOR of Two Numbers in an Array", d: "M", tier: 250, p: "trie,bit", c: "go,am,de,mn", lc: 421, f: 3, e: 40,
+    a: "Insert numbers into a bitwise trie and greedily walk the opposite bit for each query.", T: "O(32n)", S: "O(32n)" },
+  { id: "replace-words", t: "Replace Words", d: "M", tier: 450, p: "trie", c: "go,am", lc: 648, f: 2, e: 25 },
+  { id: "search-suggestions-system", t: "Search Suggestions System", d: "M", tier: 250, p: "trie,bs", c: "am,go", lc: 1268, f: 4, e: 35 },
+  { id: "camelcase-matching", t: "Camelcase Matching", d: "M", tier: 500, p: "trie,tp", c: "go", lc: 1023, f: 1, e: 25 },
+  { id: "count-distinct-substrings", t: "Count Distinct Substrings", d: "H", tier: 450, p: "trie", c: "go,am,de", gfg: "count-distinct-substrings", f: 2, e: 40 },
+  { id: "phone-directory-trie", t: "Phone Directory", d: "M", tier: 450, p: "trie", c: "am,fk,ms", gfg: "phone-directory4628", f: 2, e: 35 },
+];
+
+/* ---------------------------- bit manipulation ----------------------------- */
+const bits: Raw[] = [
+  { id: "single-number", t: "Single Number", d: "E", tier: 150, p: "bit", c: "am,go,ms,ad,tc", lc: 136, f: 4, m: true, e: 12,
+    a: "XOR everything; equal values cancel and the unique one survives.", T: "O(n)", S: "O(1)", v: ["single-number-ii", "single-number-iii"] },
+  { id: "single-number-ii", t: "Single Number II", d: "M", tier: 450, p: "bit", c: "am,go,ms", lc: 137, slug: "single-number-ii", f: 3, e: 30 },
+  { id: "single-number-iii", t: "Single Number III", d: "M", tier: 450, p: "bit", c: "am,go", lc: 260, slug: "single-number-iii", f: 2, e: 30,
+    a: "XOR everything, isolate the lowest differing bit, then split the array on that bit.", T: "O(n)", S: "O(1)" },
+  { id: "number-of-1-bits", t: "Number of 1 Bits", d: "E", tier: 75, p: "bit", c: "am,ap,ms,nv,qc", lc: 191, slug: "number-of-1-bits", f: 4, m: true, e: 12,
+    a: "Repeatedly clear the lowest set bit with n AND n-1 and count the iterations.", T: "O(set bits)", S: "O(1)" },
+  { id: "counting-bits", t: "Counting Bits", d: "E", tier: 75, p: "bit,dp1", c: "am,go,ms", lc: 338, f: 4, m: true, e: 20,
+    a: "dp[i] = dp[i >> 1] + (i AND 1).", T: "O(n)", S: "O(n)" },
+  { id: "reverse-bits", t: "Reverse Bits", d: "E", tier: 75, p: "bit", c: "ap,am,ms,qc,nv", lc: 190, f: 4, m: true, e: 15 },
+  { id: "missing-number", t: "Missing Number", d: "E", tier: 75, p: "bit,cs", c: "am,ms,go,ad,tc", lc: 268, f: 4, m: true, e: 12,
+    a: "XOR all indices with all values, or subtract the sum from n(n+1)/2.", T: "O(n)", S: "O(1)" },
+  { id: "sum-of-two-integers", t: "Sum of Two Integers", d: "M", tier: 150, p: "bit", c: "am,ms,ap,qc", lc: 371, f: 3, e: 25,
+    a: "XOR gives the sum without carry, AND shifted left gives the carry; repeat until carry is zero.", T: "O(1)", S: "O(1)" },
+  { id: "power-of-two", t: "Power of Two", d: "E", tier: 450, p: "bit", c: "am,ms,go,tc", lc: 231, f: 3, e: 10,
+    a: "A power of two has exactly one set bit, so n AND n-1 is zero.", T: "O(1)", S: "O(1)" },
+  { id: "divide-two-integers", t: "Divide Two Integers", d: "M", tier: 250, p: "bit", c: "am,ms,go,fk", lc: 29, f: 3, e: 35,
+    a: "Repeated doubling subtraction, which is long division in binary.", T: "O(log n)", S: "O(1)" },
+  { id: "subsets-using-bitmask", t: "Subsets Using Bitmask", d: "M", tier: 500, p: "bit,sub", c: "am,ms,de", gfg: "power-set4302", f: 2, e: 20 },
+  { id: "xor-of-numbers-in-range", t: "XOR of Numbers in Range", d: "M", tier: 450, p: "bit,nt", c: "am,de", gfg: "find-xor-of-numbers-from-l-to-r", f: 2, e: 25 },
+  { id: "bitwise-and-of-numbers-range", t: "Bitwise AND of Numbers Range", d: "M", tier: 450, p: "bit", c: "am,go", lc: 201, f: 2, e: 25 },
+  { id: "minimum-flips", t: "Minimum Bit Flips to Convert Number", d: "E", tier: 450, p: "bit", c: "am,qc", lc: 2220, f: 2, e: 12 },
+  { id: "gray-code", t: "Gray Code", d: "M", tier: 450, p: "bit", c: "am,nv,qc", lc: 89, f: 2, e: 25 },
+];
+
+/* ---------------------------------- math ----------------------------------- */
+const math: Raw[] = [
+  { id: "reverse-integer", t: "Reverse Integer", d: "M", tier: 250, p: "nt", c: "am,ms,ad,bb,tc", lc: 7, f: 4, e: 20,
+    a: "Pop and push digits while checking against the 32-bit overflow boundary before each step.", T: "O(log n)", S: "O(1)" },
+  { id: "palindrome-number", t: "Palindrome Number", d: "E", tier: 450, p: "nt", c: "am,ms,tc,inf", lc: 9, f: 3, e: 15 },
+  { id: "powx-n", t: "Pow(x, n)", d: "M", tier: 150, p: "nt,dc", c: "go,am,ms,me,fk,gs", lc: 50, slug: "powx-n", f: 4, m: true, e: 25,
+    a: "Fast exponentiation by squaring, halving the exponent each step.", T: "O(log n)", S: "O(1)" },
+  { id: "sieve-of-eratosthenes", t: "Sieve of Eratosthenes", d: "M", tier: 250, p: "nt", c: "am,ms,de,zh,gs,or", gfg: "sieve-of-eratosthenes5242", f: 3, m: true, e: 25,
+    a: "Mark multiples of each prime starting from its square.", T: "O(n log log n)", S: "O(n)" },
+  { id: "count-primes", t: "Count Primes", d: "M", tier: 250, p: "nt", c: "am,ms,go,ad,gs", lc: 204, f: 3, e: 25 },
+  { id: "gcd-euclid", t: "GCD of Two Numbers", d: "E", tier: 250, p: "nt", c: "tc,inf,zh,ms,gs,cp", gfg: "lcm-and-gcd4516", f: 3, e: 12,
+    a: "Euclid: gcd(a, b) equals gcd(b, a mod b) until b becomes zero.", T: "O(log min(a,b))", S: "O(1)" },
+  { id: "modular-exponentiation", t: "Modular Exponentiation", d: "M", tier: 450, p: "nt", c: "de,go,mn", gfg: "modular-exponentiation-for-large-numbers5537", f: 2, e: 25 },
+  { id: "factorial-trailing-zeroes", t: "Factorial Trailing Zeroes", d: "M", tier: 450, p: "nt", c: "am,ms,bb", lc: 172, f: 2, e: 20,
+    a: "Count factors of five, including higher powers.", T: "O(log n)", S: "O(1)" },
+  { id: "excel-sheet-column-number", t: "Excel Sheet Column Number", d: "E", tier: 450, p: "nt", c: "ms,am,fk", lc: 171, f: 2, e: 15 },
+  { id: "add-digits", t: "Add Digits", d: "E", tier: 500, p: "nt", c: "am,ad", lc: 258, f: 1, e: 12 },
+  { id: "fizz-buzz", t: "Fizz Buzz", d: "E", tier: 450, p: "nt", c: "tc,inf,wi,ac,cp", lc: 412, f: 2, e: 8 },
+  { id: "random-pick-with-weight", t: "Random Pick with Weight", d: "M", tier: 250, p: "ps,bs", c: "go,am,me,fk", lc: 528, f: 4, e: 30,
+    a: "Prefix sums of weights, then binary search a uniform random draw.", T: "O(log n)", S: "O(n)", top: "design" },
+  { id: "shuffle-an-array", t: "Shuffle an Array", d: "M", tier: 450, p: "nt", c: "am,go,ms", lc: 384, f: 2, e: 25,
+    a: "Fisher-Yates: swap each index with a random earlier or equal index.", T: "O(n)", S: "O(n)", top: "design" },
+  { id: "water-jug", t: "Water and Jug Problem", d: "M", tier: 500, p: "nt", c: "go,am", lc: 365, f: 1, e: 30 },
+  { id: "josephus-problem", t: "Josephus Problem", d: "M", tier: 450, p: "nt", c: "am,ms,de", gfg: "josephus-problem", f: 2, e: 25 },
+  { id: "unique-binary-search-trees", t: "Unique Binary Search Trees", d: "M", tier: 500, p: "dp1,nt", c: "am,go", lc: 96, f: 2, e: 30,
+    a: "Catalan numbers, summed over every possible root.", T: "O(n^2)", S: "O(n)" },
+];
+
+/* --------------------------------- design ---------------------------------- */
+const design: Raw[] = [
+  { id: "design-twitter", t: "Design Twitter", d: "M", tier: 150, p: "dsn,tk", c: "am,tt,me,ub,nf", lc: 355, f: 3, e: 45,
+    a: "Per-user tweet lists plus a k-way merge over followees using a heap.", T: "O(k log n)", S: "O(n)" },
+  { id: "design-hashmap", t: "Design HashMap", d: "E", tier: 250, p: "dsn", c: "am,ms,go,zh,at,pt,rp,cr", lc: 706, f: 3, e: 30,
+    a: "Array of buckets with chaining, plus a hash and a resize policy.", T: "O(1) average", S: "O(n)" },
+  { id: "design-underground-system", t: "Design Underground System", d: "M", tier: 450, p: "dsn", c: "am,go,at", lc: 1396, f: 2, e: 30 },
+  { id: "design-hit-counter", t: "Design Hit Counter", d: "M", tier: 450, p: "dsn", c: "go,am,li", lc: 362, prem: true, f: 3, e: 30 },
+  { id: "design-file-system", t: "Design In-Memory File System", d: "H", tier: 450, p: "dsn,trie", c: "am,go,ms", lc: 588, prem: true, f: 2, e: 50 },
+  { id: "design-tic-tac-toe", t: "Design Tic-Tac-Toe", d: "M", tier: 450, p: "dsn", c: "am,go,ms", lc: 348, prem: true, f: 2, e: 30 },
+  { id: "snapshot-array", t: "Snapshot Array", d: "M", tier: 500, p: "dsn,bs", c: "go,am", lc: 1146, f: 2, e: 35 },
+  { id: "design-rate-limiter", t: "Logger Rate Limiter", d: "E", tier: 450, p: "dsn", c: "go,am,bb", lc: 359, prem: true, f: 2, e: 20 },
+  { id: "all-oone-data-structure", t: "All O(1) Data Structure", d: "H", tier: 450, p: "dsn", c: "am,go,ub", lc: 432, slug: "all-oone-data-structure", f: 2, e: 55 },
+  { id: "design-a-stack-with-increment", t: "Design a Stack With Increment Operation", d: "M", tier: 500, p: "dsn", c: "am,go", lc: 1381, f: 1, e: 25 },
+];
+
+/* -------------------------------- advanced --------------------------------- */
+const advanced: Raw[] = [
+  { id: "segment-tree-build", t: "Range Sum Query - Mutable", d: "M", tier: 250, p: "seg", c: "go,am,ms,de,mn", lc: 307, f: 3, m: true, e: 45,
+    a: "Segment tree or Fenwick tree giving log time updates and prefix queries.", T: "O(log n)", S: "O(n)" },
+  { id: "count-of-smaller-numbers-after-self", t: "Count of Smaller Numbers After Self", d: "H", tier: 450, p: "seg,dc", c: "go,am,de,mn", lc: 315, f: 3, e: 50,
+    a: "Merge sort counting cross inversions, or a Fenwick tree over compressed values.", T: "O(n log n)", S: "O(n)" },
+  { id: "range-minimum-query", t: "Range Minimum Query (Sparse Table)", d: "H", tier: 450, p: "seg", c: "go,de,mn", gfg: "range-minimum-query", f: 2, e: 45 },
+  { id: "lca-binary-lifting", t: "Lowest Common Ancestor using Binary Lifting", d: "H", tier: 450, p: "seg,tdfs", c: "go,am,de", gfg: "lca-in-a-tree", f: 2, e: 50 },
+  { id: "sliding-window-maximum-segment-tree", t: "Sliding Window Maximum with Segment Tree", d: "H", tier: 500, p: "seg", c: "go,de", gfg: "maximum-of-all-subarrays-of-size-k3101", f: 1, e: 45 },
+  { id: "disjoint-set-union-rank", t: "Union-Find with Rank and Path Compression", d: "M", tier: 250, p: "uf", c: "am,go,ms,fk", gfg: "disjoint-set-union-find", f: 4, m: true, e: 30,
+    a: "Union by size or rank plus path compression gives near constant amortised operations.", T: "O(alpha(n))", S: "O(n)" },
+  { id: "kruskal-mst", t: "Minimum Spanning Tree (Kruskal)", d: "M", tier: 250, p: "mstree,uf", c: "am,go,ms,fk", gfg: "minimum-spanning-tree", f: 4, m: true, e: 35 },
+  { id: "matrix-exponentiation-fib", t: "Matrix Exponentiation for Fibonacci", d: "H", tier: 500, p: "nt,dc", c: "de,go,mn", gfg: "nth-fibonacci-number1335", f: 1, e: 45 },
+];
+
+export const RECURSION_MISC = [
+  ...expand(backtracking, "backtracking"),
+  ...expand(tries, "tries"),
+  ...expand(bits, "bit-manipulation"),
+  ...expand(math, "math"),
+  ...expand(design, "design"),
+  ...expand(advanced, "advanced"),
+];

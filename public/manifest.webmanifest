@@ -1,0 +1,22 @@
+{
+  "name": "DSA Prep — Interview OS",
+  "short_name": "DSA Prep",
+  "description": "Nested 75/150/250/450 sheets, company lists, animated algorithm visualisers, spaced repetition and an adaptive daily planner.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "categories": ["education", "productivity", "developer"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Today's plan", "url": "/", "description": "Your adaptive daily plan" },
+    { "name": "Review queue", "url": "/revise", "description": "Spaced repetition due today" },
+    { "name": "Visualisers", "url": "/visualize", "description": "Animated algorithms" },
+    { "name": "Blind 75", "url": "/sheets/blind-75", "description": "The core sheet" }
+  ]
+}
