@@ -19,8 +19,10 @@ export const NAV = [
   { href: "/problems", label: "Problem Bank", icon: "ListOrdered", hint: "All problems, every filter" },
   { href: "/visualize", label: "Visualise", icon: "PlayCircle", hint: "Animated algorithms" },
   { href: "/learn", label: "Learn", icon: "GraduationCap", hint: "Topics and patterns" },
+  { href: "/roadmap", label: "Roadmap", icon: "Map", hint: "The syllabus as a dependency graph" },
   { href: "/revise", label: "Revise", icon: "Repeat", hint: "Spaced repetition queue" },
   { href: "/arena", label: "Arena", icon: "Swords", hint: "Mock rounds and games" },
+  { href: "/notebook", label: "Notebook", icon: "BookOpen", hint: "Your notes, stars and unfinished work" },
   { href: "/stats", label: "Analytics", icon: "BarChart3", hint: "Mastery and trends" },
   { href: "/profile", label: "Profile", icon: "User", hint: "Achievements and settings" },
 ];
@@ -217,6 +219,22 @@ export function Shell({ children }: { children: React.ReactNode }) {
               />
               <span className="font-mono text-xs font-bold">{hydrated ? streak.current : 0}</span>
             </div>
+            <button
+              className="btn btn-ghost !px-2 max-sm:hidden"
+              onClick={() => window.dispatchEvent(new CustomEvent("toggle-focus"))}
+              title="Focus timer (f)"
+              aria-label="Focus timer"
+            >
+              <Icon name="Timer" size={17} />
+            </button>
+            <button
+              className="btn btn-ghost !px-2 max-lg:hidden"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-shortcuts"))}
+              title="Keyboard shortcuts (?)"
+              aria-label="Keyboard shortcuts"
+            >
+              <Icon name="Keyboard" size={17} />
+            </button>
             <button
               className="btn btn-ghost !px-2"
               onClick={() => setSetting("theme", theme === "dark" ? "light" : "dark")}

@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Chip, DiffBadge } from "@/components/ui/bits";
 import { ApproachPanel, HintLadder, NotesPanel, PlatformLinks, SolveBar } from "@/components/problems/detail";
 import { CodePad } from "@/components/problems/CodePad";
+import { InterviewMode } from "@/components/problems/InterviewMode";
 import { ProblemRow, StarButton } from "@/components/problems/ProblemList";
 import { PROBLEM_MAP, PROBLEMS, byPattern } from "@/lib/data/problems";
 import { PATTERN_MAP } from "@/lib/data/patterns";
@@ -28,6 +29,12 @@ export default function ProblemDetail() {
   const snap = useSnapshot();
   const prog = useStore((s) => s.progress[params.id]);
   const now = useNow();
+  const touchRecent = useStore((s) => s.touchRecent);
+
+  /* Feeds the notebook's Recent tab and the palette's no-query list. */
+  useEffect(() => {
+    if (PROBLEM_MAP[params.id]) touchRecent(params.id);
+  }, [params.id, touchRecent]);
 
   const siblings = useMemo(() => {
     if (!problem) return [];
@@ -142,6 +149,7 @@ export default function ProblemDetail() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
+          <InterviewMode problem={problem} />
           <HintLadder problem={problem} />
           <ApproachPanel problem={problem} />
           <CodePad problemId={problem.id} title={problem.title} />

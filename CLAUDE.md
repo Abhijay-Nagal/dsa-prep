@@ -29,6 +29,14 @@ all 580+ routes statically prerendered, which is what makes the offline cache wo
 **Problem ids are URLs.** An id must match its title. There is no redirect layer, so renaming an id breaks
 saved progress for that problem.
 
+**Bar and Ring take a 0..1 fraction, not a percentage.** Both clamp with `Math.min(1, value)`, so passing `72` renders
+as a full bar. Every caller passes a fraction.
+
+**Date-seeded features must be pure functions of the date key.** `lib/engine/daily.ts` picks the daily challenge, the
+weekly spotlight and the tip from a hash of `YYYY-MM-DD`, never from progress. If the pick depended on what you had
+solved it would change the moment you solved it. Read the day through `useNow()` and `todayKey(new Date(now))`, and
+render a placeholder while `now` is 0.
+
 ## Adding a problem
 
 Append a `Raw` entry to the right file in `lib/data/problems/`. Short keys: `t` title, `d` difficulty as
@@ -50,6 +58,16 @@ input throws, so `run` may assume nothing about its argument but must not hang: 
 `parseNums` matches numbers with a regex rather than splitting on separators. Splitting produces empty
 tokens and `Number("")` is 0, which silently injects phantom zeroes.
 
+## The global layer
+
+`app/layout.tsx` mounts five always-on clients below `Shell`: `ToastHost`, `CommandPalette`, `Shortcuts`, `FocusTimer`
+and `Onboarding`. They talk to each other with window events rather than shared state: `open-palette`,
+`open-shortcuts` and `toggle-focus`. `Onboarding` renders only while `!onboarded`, and `FocusTimer` renders only once
+`onboarded` is true, so the wizard is never competing with the dock.
+
+`Shortcuts` owns every global key. It bails out when the event target is an input, textarea, select or contenteditable,
+and when any modifier is held, so single-letter shortcuts cannot fire while someone is typing a note.
+
 ## Verifying data and visualisers
 
 There is no test runner. To check everything, add a temporary `app/selftest/route.ts` with
@@ -57,3 +75,24 @@ There is no test runner. To check everything, add a temporary `app/selftest/rout
 inputs, and validate the bank for duplicate ids, unknown patterns, unknown companies, dangling variants and
 missing external ids. Run it against `next dev` and delete it afterwards. Do not prerender it, since running
 every visualiser at build time exhausts the build worker heap.
+
+For `lib/engine/daily.ts`, loop 400+ consecutive dates and assert the weekday difficulty rota, that no two adjacent
+days draw the same problem, that every pick resolves in `PROBLEM_MAP`, and that calling twice with the same key is
+stable. For `app/roadmap/page.tsx`, assert every prerequisite sits in a strictly lower layer than its topic and that
+the layers partition all 24 topics.
+
+## The user guide
+
+`docs/user-guide.html` is the source; `docs/DSA-Prep-User-Guide.pdf` is rendered from it with headless Chrome. Each
+`<section class="page">` must stay under 1013px tall or it spills onto an extra page. `docs/README.md` has the render
+command and the measuring snippet.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -6,6 +6,8 @@ import { motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
 import { Bar, Chip, CountUp, DiffBadge, Empty, SectionTitle, Stat, cx } from "@/components/ui/bits";
 import { LevelCard, MasteryRadar, RecommendationCard, SkillGapList, StreakCard } from "@/components/dashboard/widgets";
+import { DailyCard, WeeklySpotlight } from "@/components/dashboard/daily";
+import { useNow } from "@/hooks/useNow";
 import { ProblemRow } from "@/components/problems/ProblemList";
 import { useDailyPlan, useDueReviews, useRecommendations, useSheetStats, useSnapshot, useTotals, useWeakSkills } from "@/hooks/useLearner";
 import { useStore } from "@/lib/store/useStore";
@@ -17,8 +19,10 @@ import { TOPICS, TOPIC_MAP } from "@/lib/data/topics";
 import { getMastery } from "@/lib/engine/recommender";
 import { ALGOS } from "@/lib/algo/registry";
 
-function greeting() {
-  const h = new Date().getHours();
+/** Pure in `now` so the server and client agree. `now` is 0 until hydration. */
+function greeting(now: number) {
+  if (!now) return "Welcome back";
+  const h = new Date(now).getHours();
   if (h < 5) return "Still up";
   if (h < 12) return "Good morning";
   if (h < 17) return "Good afternoon";
@@ -39,6 +43,7 @@ export default function Dashboard() {
   const targetCompany = useStore((s) => s.settings.targetCompany);
   const setSetting = useStore((s) => s.setSetting);
   const dailyMinutes = useStore((s) => s.settings.dailyMinutes);
+  const now = useNow();
 
   const sheet = SHEET_MAP[activeSheet] ?? SHEETS[0];
   const active = sheets.find((s) => s.sheet.id === sheet.id)!;
@@ -69,7 +74,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-2xl font-extrabold tracking-tight sm:text-[28px]"
           >
-            {greeting()}
+            {greeting(now)}
             {name ? `, ${name}` : ""}. <span className="grad-text">Here is today.</span>
           </motion.h1>
           <p className="mt-1 text-sm text-dim">
@@ -86,6 +91,8 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
+
+      <DailyCard />
 
       {/* top stats */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -231,6 +238,41 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* weekly spotlight + quick jumps */}
+      <section className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div>
+          <SectionTitle
+            icon="Compass"
+            title="This week"
+            sub="One topic in the spotlight per week, with the visualiser and the five problems that matter most."
+          />
+          <WeeklySpotlight />
+        </div>
+        <div>
+          <SectionTitle icon="Sparkles" title="Tools" sub="The parts people forget exist." />
+          <div className="panel divide-y divide-[var(--line-soft)]">
+            {[
+              { href: "/roadmap", icon: "Map", label: "Syllabus roadmap", sub: "What to learn before what" },
+              { href: "/visualize/compare", icon: "Swords", label: "Algorithm race", sub: "Two algorithms, one input" },
+              { href: "/learn/complexity", icon: "Gauge", label: "Complexity explorer", sub: "Drag n, watch it break" },
+              { href: "/notebook", icon: "BookOpen", label: "Notebook", sub: "Every note you have written" },
+              { href: "/arena", icon: "Swords", label: "Arena", sub: "Timed rounds and drills" },
+            ].map((t) => (
+              <Link key={t.href} href={t.href} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-panel-2/50">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-panel-2 text-accent">
+                  <Icon name={t.icon} size={15} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{t.label}</span>
+                  <span className="block truncate text-[11px] text-faint">{t.sub}</span>
+                </span>
+                <Icon name="ChevronRight" size={14} className="shrink-0 text-faint" />
+              </Link>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* readiness + gaps */}

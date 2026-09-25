@@ -10,7 +10,7 @@ import { TOPICS } from "@/lib/data/topics";
 import { PATTERNS } from "@/lib/data/patterns";
 import { bktUpdate, emptyMastery, paramsForDifficulty, attemptScore, problemRating, updateRating, BASE_RATING } from "@/lib/engine/mastery";
 import { emptyCard, review as srsReview } from "@/lib/engine/srs";
-import { bumpStreak, emptyStreak, levelFromXp, settleStreak, todayKey, xpForSolve, type StreakState } from "@/lib/engine/xp";
+import { bumpStreak, dayDiff, emptyStreak, levelFromXp, settleStreak, todayKey, xpForSolve, type StreakState } from "@/lib/engine/xp";
 import { newlyUnlocked } from "@/lib/engine/achievements";
 
 export interface Settings {
@@ -27,6 +27,18 @@ export interface Settings {
   vizSpeed: number;
   showHintsFirst: boolean;
   name: string;
+}
+
+/** What the first-run wizard collects. Seeds the engine so day one is not cold. */
+export interface OnboardingResult {
+  name: string;
+  targetCompany?: string;
+  dailyMinutes: number;
+  dailyProblems: number;
+  sheet: string;
+  tier: Tier;
+  /** Elo seed from self-reported experience, so the planner starts calibrated. */
+  rating: number;
 }
 
 export interface Toast {
@@ -54,6 +66,14 @@ interface StoreState {
   reviewCount: number;
   toasts: Toast[];
   lastSolvedId?: string;
+  /** False until the first-run wizard is finished or skipped. */
+  onboarded: boolean;
+  focusSessions: number;
+  focusMinutes: number;
+  /** dateKey -> the problem id whose daily bonus was claimed that day. */
+  dailyDone: Record<string, string>;
+  /** Most recently opened problem ids, newest first. Powers the palette. */
+  recent: string[];
 
   /* actions */
   setSetting: <K extends keyof Settings>(k: K, v: Settings[K]) => void;
@@ -69,6 +89,11 @@ interface StoreState {
   recordQuiz: (scorePct: number) => void;
   pushToast: (t: Omit<Toast, "id">) => void;
   dismissToast: (id: string) => void;
+  completeOnboarding: (r: OnboardingResult) => void;
+  skipOnboarding: () => void;
+  logFocus: (minutes: number) => void;
+  claimDaily: (dateKey: string, problemId: string, xp: number) => void;
+  touchRecent: (id: string) => void;
   resetAll: () => void;
   importState: (json: string) => boolean;
   exportState: () => string;
@@ -95,6 +120,15 @@ const defaultSettings: Settings = {
   vizSpeed: 1,
   showHintsFirst: false,
   name: "",
+};
+
+/** True when the sorted day keys contain a break of two or more days. */
+const hasGap = (keys: string[]): boolean => {
+  const sorted = keys.slice().sort();
+  for (let i = 1; i < sorted.length; i++) {
+    if (dayDiff(sorted[i - 1], sorted[i]) > 1) return true;
+  }
+  return false;
 };
 
 const touchDay = (days: Record<string, DayLog>, patch: Partial<DayLog>): Record<string, DayLog> => {
@@ -130,6 +164,11 @@ export const useStore = create<StoreState>()(
       bestQuiz: 0,
       reviewCount: 0,
       toasts: [],
+      onboarded: false,
+      focusSessions: 0,
+      focusMinutes: 0,
+      dailyDone: {},
+      recent: [],
 
       setSetting: (k, v) => set((s) => ({ settings: { ...s.settings, [k]: v } })),
 
@@ -306,11 +345,51 @@ export const useStore = create<StoreState>()(
 
       recordQuiz: (scorePct) => set((s) => ({ bestQuiz: Math.max(s.bestQuiz, scorePct) })),
 
+      completeOnboarding: (r) =>
+        set((s) => ({
+          onboarded: true,
+          rating: r.rating,
+          ratingHistory: [{ t: Date.now(), r: r.rating }],
+          settings: {
+            ...s.settings,
+            name: r.name,
+            targetCompany: r.targetCompany,
+            dailyMinutes: r.dailyMinutes,
+            dailyProblems: r.dailyProblems,
+            activeSheet: r.sheet,
+            activeTier: r.tier,
+          },
+        })),
+
+      skipOnboarding: () => set({ onboarded: true }),
+
+      logFocus: (minutes) =>
+        set((s) => ({
+          focusSessions: s.focusSessions + 1,
+          focusMinutes: s.focusMinutes + minutes,
+          days: touchDay(s.days, { minutes }),
+        })),
+
+      claimDaily: (dateKey, problemId, xp) => {
+        const s = get();
+        if (s.dailyDone[dateKey]) return;
+        set({
+          dailyDone: { ...s.dailyDone, [dateKey]: problemId },
+          xp: s.xp + xp,
+          days: touchDay(s.days, { xp }),
+        });
+        get().pushToast({ kind: "streak", title: `Daily bonus +${xp} XP`, body: "Challenge cleared", icon: "CalendarCheck" });
+      },
+
+      touchRecent: (id) =>
+        set((s) => (s.recent[0] === id ? s : { recent: [id, ...s.recent.filter((x) => x !== id)].slice(0, 14) })),
+
       resetAll: () =>
         set({
           progress: {}, mastery: {}, rating: BASE_RATING, ratingHistory: [], xp: 0,
           streak: emptyStreak(), days: {}, achievements: [], vizWatched: [],
           arenaWins: 0, bestQuiz: 0, reviewCount: 0, toasts: [],
+          focusSessions: 0, focusMinutes: 0, dailyDone: {}, recent: [],
         }),
 
       exportState: () => {
@@ -323,6 +402,8 @@ export const useStore = create<StoreState>()(
             ratingHistory: s.ratingHistory, xp: s.xp, streak: s.streak, days: s.days,
             achievements: s.achievements, vizWatched: s.vizWatched, arenaWins: s.arenaWins,
             bestQuiz: s.bestQuiz, reviewCount: s.reviewCount,
+            onboarded: s.onboarded, focusSessions: s.focusSessions,
+            focusMinutes: s.focusMinutes, dailyDone: s.dailyDone, recent: s.recent,
           },
           null,
           2,
@@ -347,6 +428,11 @@ export const useStore = create<StoreState>()(
             arenaWins: d.arenaWins ?? 0,
             bestQuiz: d.bestQuiz ?? 0,
             reviewCount: d.reviewCount ?? 0,
+            onboarded: d.onboarded ?? true,
+            focusSessions: d.focusSessions ?? 0,
+            focusMinutes: d.focusMinutes ?? 0,
+            dailyDone: d.dailyDone ?? {},
+            recent: d.recent ?? [],
           });
           return true;
         } catch {
@@ -360,12 +446,19 @@ export const useStore = create<StoreState>()(
         const byDifficulty: Record<Difficulty, number> = { Easy: 0, Medium: 0, Hard: 0 };
         const byTopic: Record<string, number> = {};
         let noHint = 0;
+        let nightOwl = false;
+        let earlyBird = false;
         for (const [id, p] of solved) {
           const prob = PROBLEM_MAP[id];
           if (!prob) continue;
           byDifficulty[prob.difficulty]++;
           byTopic[prob.topic] = (byTopic[prob.topic] ?? 0) + 1;
           if (p.usedHints === 0) noHint++;
+          if (p.solvedAt) {
+            const h = new Date(p.solvedAt).getHours();
+            if (h < 4) nightOwl = true;
+            else if (h < 6) earlyBird = true;
+          }
         }
         const solvedIds = new Set(solved.map(([id]) => id));
         const blind = PROBLEMS.filter((p) => p.tier === 75);
@@ -386,6 +479,13 @@ export const useStore = create<StoreState>()(
           companySheetsDone: blind.every((p) => solvedIds.has(p.id)) ? 1 : 0,
           totalMinutes: days.reduce((a, d) => a + d.minutes, 0),
           quizScore: s.bestQuiz,
+          focusSessions: s.focusSessions,
+          dailyChallenges: Object.keys(s.dailyDone).length,
+          nightOwl,
+          earlyBird,
+          // A gap of two or more days between logged days means a streak was
+          // broken at some point, so a 7 day streak now is a genuine comeback.
+          comeback: s.streak.current >= 7 && hasGap(Object.keys(s.days)),
         };
       },
     }),

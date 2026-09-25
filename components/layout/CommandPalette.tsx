@@ -11,13 +11,18 @@ import { COMPANIES } from "@/lib/data/companies";
 import { ALGOS } from "@/lib/algo/registry";
 import { PATTERNS } from "@/lib/data/patterns";
 import { NAV } from "./Shell";
+import { useStore } from "@/lib/store/useStore";
+import { PROBLEM_MAP } from "@/lib/data/problems";
+import { useHydrated } from "@/hooks/useNow";
 
 interface Item {
   id: string;
   label: string;
   sub?: string;
   icon: string;
-  href: string;
+  /** Either a destination or an action. Actions win when both are set. */
+  href?: string;
+  run?: () => void;
   group: string;
   badge?: React.ReactNode;
   score: number;
@@ -44,12 +49,19 @@ function fuzzy(query: string, text: string): number {
   return 200 + hits * 4 + best * 6 - t.length * 0.2;
 }
 
+/** Module scope on purpose: the purity rule forbids Math.random in render. */
+const randomProblemId = () => PROBLEMS[Math.floor(Math.random() * PROBLEMS.length)].id;
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [sel, setSel] = useState(0);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const hydrated = useHydrated();
+  const theme = useStore((s) => s.settings.theme);
+  const setSetting = useStore((s) => s.setSetting);
+  const recent = useStore((s) => s.recent);
 
   useEffect(() => {
     const show = () => {
@@ -86,6 +98,26 @@ export function CommandPalette() {
 
     for (const n of NAV) push({ id: `nav-${n.href}`, label: n.label, sub: n.hint, icon: n.icon, href: n.href, group: "Go to" }, n.label);
 
+    const actions: { label: string; sub: string; icon: string; run: () => void }[] = [
+      {
+        label: theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+        sub: "Shortcut: t",
+        icon: theme === "dark" ? "Sun" : "MoonStar",
+        run: () => setSetting("theme", theme === "dark" ? "light" : "dark"),
+      },
+      { label: "Focus timer", sub: "Shortcut: f", icon: "Timer", run: () => window.dispatchEvent(new CustomEvent("toggle-focus")) },
+      { label: "Keyboard shortcuts", sub: "Shortcut: ?", icon: "Keyboard", run: () => window.dispatchEvent(new CustomEvent("open-shortcuts")) },
+      {
+        label: "Surprise me with a problem",
+        sub: "Random pick from the bank",
+        icon: "Dices",
+        run: () => router.push(`/problems/${randomProblemId()}`),
+      },
+      { label: "Race two algorithms", sub: "Side by side visualisers", icon: "Swords", run: () => router.push("/visualize/compare") },
+      { label: "Complexity explorer", sub: "Drag n and watch it break", icon: "Gauge", run: () => router.push("/learn/complexity") },
+    ];
+    for (const a of actions) push({ id: `act-${a.label}`, label: a.label, sub: a.sub, icon: a.icon, run: a.run, group: "Actions" }, a.label);
+
     for (const p of PROBLEMS) {
       push(
         {
@@ -106,16 +138,37 @@ export function CommandPalette() {
     for (const c of COMPANIES) push({ id: `c-${c.id}`, label: c.name, sub: "Company sheet", icon: "Building2", href: `/companies/${c.id}`, group: "Companies" }, c.name);
 
     if (!q) {
-      return out.filter((i) => i.group === "Go to").slice(0, 10);
+      const recentItems: Item[] = hydrated
+        ? recent
+            .map((id) => PROBLEM_MAP[id])
+            .filter(Boolean)
+            .slice(0, 4)
+            .map((p) => ({
+              id: `recent-${p.id}`,
+              label: p.title,
+              sub: "Recently opened",
+              icon: "Clock",
+              href: `/problems/${p.id}`,
+              group: "Recent",
+              badge: <DiffBadge d={p.difficulty} small />,
+              score: 0,
+            }))
+        : [];
+      return [
+        ...recentItems,
+        ...out.filter((i) => i.group === "Go to").slice(0, 8),
+        ...out.filter((i) => i.group === "Actions"),
+      ];
     }
     return out.sort((a, b) => b.score - a.score).slice(0, 24);
-  }, [q]);
+  }, [q, theme, setSetting, router, hydrated, recent]);
 
   const go = (item?: Item) => {
     const target = item ?? items[sel];
     if (!target) return;
     setOpen(false);
-    router.push(target.href);
+    if (target.run) target.run();
+    else if (target.href) router.push(target.href);
   };
 
   return (
@@ -195,6 +248,9 @@ export function CommandPalette() {
             <div className="hairline flex items-center gap-4 px-4 py-2 text-[10px] text-faint">
               <span className="flex items-center gap-1"><Icon name="ChevronUp" size={10} /><Icon name="ChevronDown" size={10} /> navigate</span>
               <span>enter to open</span>
+              <span className="flex items-center gap-1">
+                <kbd className="rounded border border-line px-1 font-mono">?</kbd> all shortcuts
+              </span>
               <span className="ml-auto">{PROBLEMS.length} problems · {ALGOS.length} visualisers</span>
             </div>
           </motion.div>

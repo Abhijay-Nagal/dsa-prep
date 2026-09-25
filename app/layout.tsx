@@ -5,6 +5,9 @@ import { Shell } from "@/components/layout/Shell";
 import { ToastHost } from "@/components/layout/ToastHost";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { PwaBoot } from "@/components/layout/PwaBoot";
+import { Onboarding } from "@/components/layout/Onboarding";
+import { FocusTimer } from "@/components/layout/FocusTimer";
+import { Shortcuts } from "@/components/layout/Shortcuts";
 
 const sans = Plus_Jakarta_Sans({
   variable: "--font-sans-var",
@@ -67,6 +70,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Shell>{children}</Shell>
         <ToastHost />
         <CommandPalette />
+        <Shortcuts />
+        <FocusTimer />
+        <Onboarding />
         <PwaBoot />
       </body>
     </html>

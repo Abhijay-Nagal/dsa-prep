@@ -186,6 +186,12 @@ export interface AchievementInput {
   companySheetsDone: number;
   totalMinutes: number;
   quizScore: number;
+  focusSessions: number;
+  dailyChallenges: number;
+  /** Derived from solve timestamps, which is why these are booleans not counts. */
+  nightOwl: boolean;
+  earlyBird: boolean;
+  comeback: boolean;
 }
 
 /* ============================================================

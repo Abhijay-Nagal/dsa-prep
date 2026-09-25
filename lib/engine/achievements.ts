@@ -50,9 +50,14 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "xp-5000", name: "Five Thousand", desc: "Earn 5,000 XP", icon: "Zap", tier: "silver", progress: (s) => pct(s.xp, 5000) },
   { id: "xp-25000", name: "Twenty Five K", desc: "Earn 25,000 XP", icon: "Bolt", tier: "gold", progress: (s) => pct(s.xp, 25000) },
 
-  { id: "night-owl", name: "Night Owl", desc: "Solve a problem after midnight", icon: "Moon", tier: "bronze", secret: true, progress: () => 0 },
-  { id: "early-bird", name: "Early Bird", desc: "Solve a problem before 6am", icon: "Sunrise", tier: "bronze", secret: true, progress: () => 0 },
-  { id: "comeback", name: "Comeback", desc: "Return after a broken streak and rebuild to 7 days", icon: "Undo2", tier: "silver", secret: true, progress: () => 0 },
+  { id: "focus-10", name: "In the Zone", desc: "Finish 10 focus sessions", icon: "Timer", tier: "silver", progress: (s) => pct(s.focusSessions, 10) },
+  { id: "focus-50", name: "Deep Work", desc: "Finish 50 focus sessions", icon: "Hourglass", tier: "gold", progress: (s) => pct(s.focusSessions, 50) },
+  { id: "daily-7", name: "Daily Driver", desc: "Clear 7 daily challenges", icon: "CalendarCheck", tier: "silver", progress: (s) => pct(s.dailyChallenges, 7) },
+  { id: "daily-30", name: "Never Misses", desc: "Clear 30 daily challenges", icon: "Crown", tier: "gold", progress: (s) => pct(s.dailyChallenges, 30) },
+
+  { id: "night-owl", name: "Night Owl", desc: "Solve a problem between midnight and 4am", icon: "Moon", tier: "bronze", secret: true, progress: (s) => (s.nightOwl ? 1 : 0) },
+  { id: "early-bird", name: "Early Bird", desc: "Solve a problem before 6am", icon: "Sunrise", tier: "bronze", secret: true, progress: (s) => (s.earlyBird ? 1 : 0) },
+  { id: "comeback", name: "Comeback", desc: "Rebuild to a 7 day streak after breaking one", icon: "Undo2", tier: "silver", secret: true, progress: (s) => (s.comeback ? 1 : 0) },
 ];
 
 export const ACHIEVEMENT_MAP = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));

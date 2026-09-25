@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>DSA Prep — User Guide</title>
+<style>
+  /* Print source for docs/DSA-Prep-User-Guide.pdf. Regenerate per docs/README.md.
+     Sections are balanced to the A4 printable box (182mm x 268mm = 688 x 1013 px
+     at 96dpi). Footers carry a label rather than a page number, so adding a
+     paragraph can never make the numbering lie. */
+  @page { size: A4; margin: 15mm 14mm 14mm 14mm; }
+
+  :root {
+    --ink: #14161c;
+    --soft: #4a5161;
+    --faint: #7b8394;
+    --line: #dfe3ec;
+    --accent: #5b4bf0;
+    --accent2: #9333ea;
+    --easy: #12855c;
+    --med: #b06f00;
+    --hard: #c4314b;
+    --panel: #f6f7fb;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    margin: 0;
+    font: 10pt/1.5 "Segoe UI", -apple-system, system-ui, Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  h1, h2, h3 { margin: 0; line-height: 1.22; }
+  p { margin: 0 0 7pt; }
+  ul, ol { margin: 0 0 7pt; padding-left: 15pt; }
+  li { margin-bottom: 3pt; }
+  code, kbd { font-family: "Cascadia Mono", Consolas, monospace; }
+
+  code {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.5pt 3pt;
+    font-size: 8.5pt;
+  }
+
+  kbd {
+    display: inline-block;
+    background: #fff;
+    border: 1px solid #c3c9d6;
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    padding: 0.5pt 4pt;
+    font-size: 8pt;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .page {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    min-height: 262mm;
+  }
+  .page:last-child { page-break-after: auto; }
+  .body { flex: 1 1 auto; }
+
+  /* ---------- cover ---------- */
+  .cover {
+    border-radius: 10pt;
+    padding: 18pt 20pt;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    margin-bottom: 14pt;
+  }
+  .cover h1 { font-size: 26pt; font-weight: 800; letter-spacing: -0.4pt; }
+  .cover .sub { font-size: 11pt; opacity: 0.92; margin-top: 4pt; }
+  .cover .meta { font-size: 8.5pt; opacity: 0.8; margin-top: 10pt; }
+
+  /* ---------- headings ---------- */
+  h2 {
+    font-size: 13pt;
+    font-weight: 800;
+    letter-spacing: -0.2pt;
+    margin: 14pt 0 6pt;
+    padding-bottom: 3pt;
+    border-bottom: 1.5pt solid var(--accent);
+  }
+  h2:first-child { margin-top: 0; }
+  h3 { font-size: 10.5pt; font-weight: 700; margin: 9pt 0 3pt; }
+  .lede { font-size: 10.5pt; color: var(--soft); margin-bottom: 10pt; }
+
+  /* ---------- grids and cards ---------- */
+  .grid { display: grid; gap: 7pt; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 7pt;
+    padding: 8pt 9pt;
+    background: #fff;
+    page-break-inside: avoid;
+  }
+  .card h3 { margin-top: 0; }
+  .card p { margin-bottom: 0; font-size: 9pt; color: var(--soft); }
+  .card .tag {
+    display: block;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4pt;
+    color: var(--accent);
+    margin-bottom: 2pt;
+  }
+
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 7pt;
+    padding: 7pt;
+    text-align: center;
+    background: var(--panel);
+  }
+  .stat b { display: block; font-size: 15pt; font-weight: 800; color: var(--accent); }
+  .stat span { font-size: 8pt; color: var(--faint); }
+
+  .note {
+    border-left: 3pt solid var(--accent);
+    background: var(--panel);
+    border-radius: 0 6pt 6pt 0;
+    padding: 7pt 9pt;
+    font-size: 9pt;
+    color: var(--soft);
+    margin: 8pt 0;
+    page-break-inside: avoid;
+  }
+  .note b { color: var(--ink); }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; page-break-inside: avoid; }
+  th, td { text-align: left; padding: 4pt 5pt; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.k { width: 78pt; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ---------- numbered steps ---------- */
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  .steps li {
+    counter-increment: s;
+    position: relative;
+    padding-left: 20pt;
+    margin-bottom: 6pt;
+    font-size: 9.5pt;
+  }
+  .steps li::before {
+    content: counter(s);
+    position: absolute;
+    left: 0;
+    top: 0.5pt;
+    width: 14pt;
+    height: 14pt;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 8pt;
+    font-weight: 700;
+    text-align: center;
+    line-height: 14pt;
+  }
+
+  .phases { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4pt; margin: 6pt 0 8pt; }
+  .phase {
+    border-radius: 6pt;
+    padding: 6pt 5pt;
+    text-align: center;
+    color: #fff;
+    font-size: 8.5pt;
+    font-weight: 700;
+  }
+  .phase span { display: block; font-size: 7pt; font-weight: 500; opacity: 0.9; }
+
+  .diff { font-weight: 700; }
+  .diff.e { color: var(--easy); }
+  .diff.m { color: var(--med); }
+  .diff.h { color: var(--hard); }
+
+  footer {
+    flex: 0 0 auto;
+    margin-top: 12pt;
+    padding-top: 6pt;
+    border-top: 1px solid var(--line);
+    font-size: 8pt;
+    color: var(--faint);
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. SETUP AND FIRST RUN ============ -->
+<section class="page">
+  <div class="body">
+    <div class="cover">
+      <h1>DSA Prep</h1>
+      <div class="sub">Interview OS — a short user guide</div>
+      <div class="meta">Offline-capable, installable, no account. Everything runs in your browser.</div>
+    </div>
+
+    <div class="grid g4" style="margin-bottom:12pt">
+      <div class="stat"><b>486</b><span>problems</span></div>
+      <div class="stat"><b>5</b><span>nested phases</span></div>
+      <div class="stat"><b>42</b><span>company sheets</span></div>
+      <div class="stat"><b>46</b><span>animated algorithms</span></div>
+    </div>
+
+    <h2>Running it</h2>
+    <p>From the project folder:</p>
+    <table style="margin-bottom:8pt">
+      <tr><td class="k"><code>npm install</code></td><td>Once, after cloning.</td></tr>
+      <tr><td class="k"><code>npm run dev</code></td><td>Development server on <code>http://localhost:3000</code>.</td></tr>
+      <tr><td class="k"><code>npm run build</code></td><td>Production build. Prerenders every page.</td></tr>
+      <tr><td class="k"><code>npm start</code></td><td>Serves the production build. Offline mode works here.</td></tr>
+    </table>
+    <p>Needs Node 20 or newer. There is no backend, no database and no environment variables to set.</p>
+
+    <div class="note">
+      <b>Install it as an app.</b> Open it in Chrome or Edge and use the install button in the address bar, or accept the
+      in-app prompt. It then opens in its own window, works with no network, and picks up four shortcuts: today's plan,
+      the review queue, visualisers and Blind&nbsp;75.
+    </div>
+
+    <h2>First run</h2>
+    <p>A five-step wizard appears the first time. It is worth two minutes, because the answers seed the learning engine.</p>
+    <ol class="steps">
+      <li><strong>Your name</strong> — only used to greet you, and optional.</li>
+      <li><strong>Your level</strong> — sets your starting rating, so the first recommendations are not random.</li>
+      <li><strong>Target company</strong> — reweights every topic towards that company's interview style. Skippable.</li>
+      <li><strong>Runway</strong> — how long until your interview. This picks your starting phase.</li>
+      <li><strong>Daily minutes</strong> — the planner sizes each day to exactly this budget.</li>
+    </ol>
+    <p>All five are editable later from <strong>Profile</strong> and from the dashboard.</p>
+  </div>
+  <footer><span>DSA Prep — user guide</span><span>Setup and first run</span></footer>
+</section>
+
+<!-- ============ 2. THE DAILY LOOP ============ -->
+<section class="page">
+  <div class="body">
+    <h2>The daily loop</h2>
+    <p>Open the <strong>Dashboard</strong> and work top to bottom. It is designed so you never have to decide what to do
+      next.</p>
+    <div class="grid g2">
+      <div class="card">
+        <span class="tag">Daily challenge</span>
+        <h3>One problem, date-seeded</h3>
+        <p>The same for everyone, rotating by weekday: easy on Sunday, hard on Wednesday and Saturday, medium otherwise.
+          Solve it, then claim the bonus XP.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Today's plan</span>
+        <h3>Reviews first, then new work</h3>
+        <p>Due reviews come first, the remaining minutes are filled with the highest-value problems that fit, and one
+          deliberate stretch problem is added at the end.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Goal ring</span>
+        <h3>Problems solved today</h3>
+        <p>Counts towards your streak. Streaks carry two freezes, and each absorbs one missed day.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Recommended next</span>
+        <h3>Scored, not shuffled</h3>
+        <p>Each card says why it was picked: pattern mastery, your rating, interview frequency, your target company.</p>
+      </div>
+    </div>
+
+    <h2>Phases: 75 → 150 → 250 → 450 → Vault</h2>
+    <p class="lede">The sheets are strictly nested, so moving up a phase never asks you to redo anything.</p>
+    <div class="phases">
+      <div class="phase" style="background:#12855c">Blind 75<span>5 weeks</span></div>
+      <div class="phase" style="background:#0d8ba8">Top 150<span>9 weeks</span></div>
+      <div class="phase" style="background:#b06f00">SDE 250<span>14 weeks</span></div>
+      <div class="phase" style="background:#7c3aed">DSA 450<span>24 weeks</span></div>
+      <div class="phase" style="background:#c4314b">Vault<span>everything</span></div>
+    </div>
+    <p>Every problem in Blind 75 is also in Top 150, which sits inside SDE 250, inside DSA 450, inside the Vault. A
+      problem you solved in an earlier phase shows a <strong>done in 75</strong> badge in every larger sheet. Switch your
+      active phase from the dashboard or from the <strong>Sheets</strong> page.</p>
+
+    <h2>Company sheets</h2>
+    <p>Pick a company from <strong>Companies</strong> and you get its real round structure, what its bar looks like, its
+      difficulty mix, a reordered problem list, and a readiness score out of 100 that compares your mastery and rating
+      against that company's tier. Service-company pages (TCS, Infosys, Wipro and similar) are tuned for online
+      assessment rounds rather than full onsite loops.</p>
+    <p>Set one as your <strong>target</strong> and the whole app reorders around it: recommendations, the daily plan and
+      the weakest-skills list all shift towards that company's focus topics.</p>
+  </div>
+  <footer><span>DSA Prep — user guide</span><span>The daily loop</span></footer>
+</section>
+
+<!-- ============ 3. SOLVING AND RECALL ============ -->
+<section class="page">
+  <div class="body">
+    <h2>Working a problem</h2>
+    <p>Every problem page has the same five parts.</p>
+    <table>
+      <tr>
+        <td class="k"><strong>Interview mode</strong></td>
+        <td>A timed round scaled to the problem's target time, with phase prompts: clarify, plan out loud, code, verify,
+          wrap up. Finish as <em>solved</em> or <em>attempted</em> and the time is recorded either way.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Hint ladder</strong></td>
+        <td>Hints reveal one at a time, from a nudge to the full approach. Using fewer hints earns more XP and counts as
+          stronger evidence of mastery.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Approach</strong></td>
+        <td>The intended solution, its complexity, and a follow-up an interviewer would ask next.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Scratchpad</strong></td>
+        <td>A code editor with syntax highlighting. JavaScript actually runs, in a sandboxed worker with a timeout.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Notes</strong></td>
+        <td>Saved as you type. These collect in the Notebook and are the best revision material in the app.</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      <b>Find the same problem elsewhere.</b> Each page links out to LeetCode, GeeksforGeeks, Code360, InterviewBit,
+      HackerRank, CodeChef and a video search. Links are marked <em>direct</em> when the exact problem is known and
+      <em>search</em> otherwise, so you always know which is which.
+    </div>
+
+    <h2>Spaced repetition</h2>
+    <p>Solving a problem schedules it for review. The scheduler tracks a memory <em>stability</em> per problem and brings
+      it back when your predicted recall falls to about 90 percent — the point where one look is enough and any later
+      would mean relearning it from scratch.</p>
+    <p>Open <strong>Revise</strong> and grade each card honestly: <span class="diff h">Forgot</span>,
+      <span class="diff m">Hard</span>, <span class="diff e">Good</span> or <span class="diff e">Easy</span>. Grading low
+      is not a failure, it just pulls the card closer. Reviews count towards your streak.</p>
+
+    
+    <h2>Seeing the algorithms</h2>
+    <p class="lede">Forty-six step-by-step animations, all with editable input.</p>
+    <div class="grid g2">
+      <div class="card">
+        <span class="tag">Visualise</span>
+        <h3>One algorithm, frame by frame</h3>
+        <p>Play, pause, step, scrub and replay at seven speeds. Each frame narrates what just happened, highlights the
+          pseudocode line being executed, and updates live counters. Type your own input and watch it run on that.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Algorithm race</span>
+        <h3>Two algorithms, same input</h3>
+        <p>Pick a matchup — bubble against quick, BFS against DFS — and step both in lockstep. The verdict says how many
+          times fewer steps the winner took. Steps are animation frames, so they track comparisons and visits rather
+          than nanoseconds.</p>
+      </div>
+    </div>
+  </div>
+  <footer><span>DSA Prep — user guide</span><span>Working problems</span></footer>
+</section>
+
+<!-- ============ 4. TOOLS ============ -->
+<section class="page">
+  <div class="body">
+    
+
+    
+
+    <h2>The other tools</h2>
+    <table>
+      <tr>
+        <td class="k"><strong>Roadmap</strong></td>
+        <td>The 24 topics as a prerequisite graph, seven layers deep. Nodes fill as your mastery grows, and a lock means a
+          prerequisite is not ready. Hover any topic to trace what it needs and what it unlocks.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Complexity<br />explorer</strong></td>
+        <td>Drag <em>n</em> and watch which growth classes fall off the cliff. The constraint decoder turns
+          <code>n&nbsp;≤&nbsp;10^5</code> into a shortlist of algorithms that will actually pass — the single most useful
+          reflex in a live round.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Notebook</strong></td>
+        <td>Every note you have written, everything you starred, every problem you attempted but did not finish, and your
+          recent history. Searchable, editable in place, and exportable as one Markdown file.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Arena</strong></td>
+        <td>Three games: a timed mock round drawn from a company's real difficulty mix, a pattern-recognition sprint, and
+          a complexity reading drill.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Focus timer</strong></td>
+        <td>The pill in the bottom-left corner. Sessions of 25 or 50 minutes with breaks, and it keeps running while you
+          browse. Completed sessions log study minutes towards your streak.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Learn</strong></td>
+        <td>Notes per topic and per pattern: the key ideas, the trigger phrases that give the pattern away, a code
+          template and a generic hint ladder.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Analytics</strong></td>
+        <td>Mastery radar, rating history, an activity heatmap and difficulty breakdowns.</td>
+      </tr>
+    </table>
+
+    <h2>Keyboard shortcuts</h2>
+    <p class="lede">Press <kbd>?</kbd> anywhere to see this list inside the app.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h3 style="margin-top:0">Jump to a page</h3>
+        <table>
+          <tr><td class="k"><kbd>g</kbd> <kbd>d</kbd></td><td>Dashboard</td><td class="k"><kbd>g</kbd> <kbd>r</kbd></td><td>Revise</td></tr>
+          <tr><td class="k"><kbd>g</kbd> <kbd>s</kbd></td><td>Sheets</td><td class="k"><kbd>g</kbd> <kbd>a</kbd></td><td>Arena</td></tr>
+          <tr><td class="k"><kbd>g</kbd> <kbd>c</kbd></td><td>Companies</td><td class="k"><kbd>g</kbd> <kbd>n</kbd></td><td>Notebook</td></tr>
+          <tr><td class="k"><kbd>g</kbd> <kbd>p</kbd></td><td>Problems</td><td class="k"><kbd>g</kbd> <kbd>m</kbd></td><td>Roadmap</td></tr>
+          <tr><td class="k"><kbd>g</kbd> <kbd>v</kbd></td><td>Visualise</td><td class="k"><kbd>g</kbd> <kbd>y</kbd></td><td>Analytics</td></tr>
+          <tr><td class="k"><kbd>g</kbd> <kbd>l</kbd></td><td>Learn</td><td class="k"><kbd>g</kbd> <kbd>u</kbd></td><td>Profile</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Anywhere</h3>
+        <table>
+          <tr><td class="k"><kbd>Ctrl</kbd> <kbd>K</kbd></td><td>Search everything</td></tr>
+          <tr><td class="k"><kbd>/</kbd></td><td>Search everything</td></tr>
+          <tr><td class="k"><kbd>f</kbd></td><td>Focus timer</td></tr>
+          <tr><td class="k"><kbd>t</kbd></td><td>Light or dark theme</td></tr>
+          <tr><td class="k"><kbd>?</kbd></td><td>Shortcut cheat sheet</td></tr>
+          <tr><td class="k"><kbd>Space</kbd></td><td>Play a visualiser</td></tr>
+          <tr><td class="k"><kbd>←</kbd> <kbd>→</kbd></td><td>Step one frame</td></tr>
+        </table>
+      </div>
+    </div>
+    <p style="margin-top:7pt;font-size:9pt;color:var(--soft)">The search box also runs actions: switch theme, start the
+      focus timer, race two algorithms, or jump to a random problem.</p>
+  </div>
+  <footer><span>DSA Prep — user guide</span><span>Tools and shortcuts</span></footer>
+</section>
+
+<!-- ============ 5. DATA AND ROUTINE ============ -->
+<section class="page">
+  <div class="body">
+    <h2>Progress, XP and streaks</h2>
+    <p>Solving awards XP with a visible breakdown: difficulty, a no-hint bonus, a first-try bonus, your streak
+      multiplier, and a speed bonus for finishing inside the estimate. XP drives 24 levels, each with its own title, and
+      there are 42 achievements across four tiers — three of them secret.</p>
+    <p>Behind all of it, four models run on your history: a spaced-repetition scheduler, Bayesian knowledge tracing per
+      topic and per pattern, an Elo rating for you against every problem, and a planner that fills each day with a
+      knapsack over your remaining minutes. None of them need a server.</p>
+
+    <h2>Your data</h2>
+    <p>Everything — progress, notes, code, settings, streak — lives in this browser's local storage under one key,
+      <code>dsa-prep-v1</code>. Nothing is uploaded anywhere, and there is no account to create.</p>
+    <ul>
+      <li><strong>Moving devices:</strong> Profile → Export downloads a JSON file. Import it on the other device.</li>
+      <li><strong>Same browser:</strong> your streak only counts if you use the same browser profile each day.</li>
+      <li><strong>Starting over:</strong> Profile → Reset clears progress. It cannot be undone, so export first.</li>
+      <li><strong>Private windows:</strong> storage is cleared when the window closes, so progress will not persist.</li>
+    </ul>
+
+    <h2>A suggested first week</h2>
+    <ol class="steps">
+      <li>Finish the wizard. Pick the runway that is actually true, not the one you wish were true.</li>
+      <li>Do the daily challenge, then whatever the plan lists. Do not skip ahead — the order is doing work.</li>
+      <li>Write one line of notes on every problem, even the easy ones. Future you reads those, not the solution.</li>
+      <li>When a problem confuses you, open its visualiser before you read the approach.</li>
+      <li>Clear the review queue daily. It is short by design, and skipping it is what makes phase two feel hard.</li>
+      <li>On day seven, open the Roadmap and Analytics. Both will show you what to fix without you having to guess.</li>
+    </ol>
+
+    <div class="note">
+      <b>One honest caveat.</b> Problem metadata is curated, not scraped. Interview frequency is a judgement call on a
+      five-point scale, company tags are reported tags where those are known, and round structures reflect publicly
+      reported processes that drift over time. Treat the numbers as a good prior, not as ground truth.
+    </div>
+
+    <h2>If something looks wrong</h2>
+    <table>
+      <tr><td class="k">Empty dashboard</td><td>Nothing is solved yet. The plan fills in as soon as you mark the first problem.</td></tr>
+      <tr><td class="k">Streak reset</td><td>Check you are in the same browser profile. Freezes cover one missed day each, not two.</td></tr>
+      <tr><td class="k">Wizard reappears</td><td>Site data was cleared. Import your exported JSON from Profile.</td></tr>
+      <tr><td class="k">No offline mode</td><td>Offline needs the production build: <code>npm run build</code> then <code>npm start</code>.</td></tr>
+    </table>
+  </div>
+  <footer><span>DSA Prep — user guide</span><span>Progress, data and routine</span></footer>
+</section>
+
+</body>
+</html>

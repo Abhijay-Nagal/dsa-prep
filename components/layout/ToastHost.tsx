@@ -5,6 +5,9 @@ import { AnimatePresence, motion } from "motion/react";
 import confetti from "canvas-confetti";
 import { Icon } from "@/components/ui/Icon";
 import { useStore } from "@/lib/store/useStore";
+import { buzz, play } from "@/lib/sound";
+
+const CUE = { xp: "solve", achievement: "achieve", levelup: "level", streak: "solve", info: "click" } as const;
 
 const KIND: Record<string, { icon: string; color: string }> = {
   xp: { icon: "Zap", color: "#6d5efc" },
@@ -18,12 +21,24 @@ export function ToastHost() {
   const toasts = useStore((s) => s.toasts);
   const dismiss = useStore((s) => s.dismissToast);
   const reduceMotion = useStore((s) => s.settings.reduceMotion);
+  const sound = useStore((s) => s.settings.sound);
 
   useEffect(() => {
     if (!toasts.length) return;
     const timers = toasts.map((t) => setTimeout(() => dismiss(t.id), t.kind === "achievement" ? 5200 : 3600));
     return () => timers.forEach(clearTimeout);
   }, [toasts, dismiss]);
+
+  /* One cue per newly arrived toast, keyed on the newest id so a dismissal
+     never replays a sound. */
+  const newest = toasts.length ? toasts[toasts.length - 1] : null;
+  const newestId = newest?.id ?? "";
+  const newestKind = newest?.kind ?? "info";
+  useEffect(() => {
+    if (!newestId) return;
+    play(CUE[newestKind] ?? "click", sound);
+    if (newestKind === "achievement" || newestKind === "levelup") buzz([18, 40, 18]);
+  }, [newestId, newestKind, sound]);
 
   useEffect(() => {
     const big = toasts.find((t) => t.kind === "achievement" || t.kind === "levelup");

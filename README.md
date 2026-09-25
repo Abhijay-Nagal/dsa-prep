@@ -17,6 +17,8 @@ Everything runs client side. No account, no backend, no network needed after the
 | Visualisers | 46 step-by-step animations with narration, pseudocode tracing and editable input |
 | Topics | 24, ordered by prerequisite so nothing uses an idea you have not met |
 | Patterns | 48, each with trigger phrases, a template and a hint ladder |
+| Roadmap | the 24 topics as a 7-layer prerequisite graph, gated by mastery |
+| Guide | `docs/DSA-Prep-User-Guide.pdf`, five pages covering everything below |
 
 ### Nested phases
 
@@ -82,9 +84,43 @@ N-Queens, subsets, permutations, Sudoku, KMP, tries and the sieve.
 
 ---
 
+## Getting started, and staying in
+
+**First-run wizard.** Five steps: name, self-reported level, target company, runway and daily minutes. The level seeds
+your Elo rating and the runway picks your starting phase, so the very first daily plan is calibrated rather than a
+guess. Skippable, and everything it sets is editable afterwards.
+
+**Daily challenge.** One problem per day, seeded from the date so it is the same for everyone and never shifts
+mid-session. The difficulty rotates by weekday — easy on Sunday, hard on Wednesday and Saturday — and clearing it pays
+a 1.5x or 2x XP bonus. Adjacent days can never draw the same problem.
+
+**Focus timer.** A dock in the bottom-left corner with 25 and 50 minute sessions plus breaks. It keeps running while
+you navigate, and a completed session logs study minutes towards your streak.
+
+**Interview mode.** On any problem page, a timed round scaled to that problem's target time, with the phases of a real
+round: clarify, plan out loud, code, verify, wrap up. It chimes as each phase opens and records your time whether you
+finish or give up.
+
+**Keyboard everywhere.** `Ctrl K` or `/` for search, `g` then a letter to jump to any page, `f` for the timer, `t` for
+the theme, `?` for the full cheat sheet. The palette also runs actions, not just navigation.
+
+**Notebook.** Every note you wrote, everything starred, everything attempted but unfinished, and your recent history —
+searchable, editable in place, exportable as one Markdown file.
+
+**Complexity explorer.** Drag `n` across nine growth classes and watch which ones cross the one-second budget. The
+constraint decoder turns `n <= 10^5` into the shortlist of algorithms that will actually pass.
+
+**Algorithm race.** Two visualisers side by side on the same input, stepped in lockstep, with a verdict on how many
+times fewer steps the winner took. Steps are animation frames, so they track comparisons and visits, not nanoseconds.
+
+**Sound and haptics.** Short synthesised cues on solves, level-ups and achievements, plus a vibration on mobile. No
+audio files ship, and the whole layer is off when you turn sound off.
+
+---
+
 ## Gamification
 
-XP with per-solve breakdowns, 24 level titles, streaks with freezes that absorb one missed day, 40
+XP with per-solve breakdowns, 24 level titles, streaks with freezes that absorb one missed day, 42
 achievements across four tiers, an activity heatmap, a mastery radar, and three arena modes: timed mock
 rounds drawn from a company's difficulty mix, a pattern recognition sprint, and a complexity reading drill.
 
@@ -112,18 +148,20 @@ statically prerendered at build time so the whole app is cacheable and works off
 ```
 app/                    routes; dynamic routes pair a server page.tsx with a client view.tsx
 components/
-  layout/               shell, command palette, toasts, PWA boot
+  layout/               shell, command palette, toasts, PWA boot, onboarding, focus timer, shortcuts
   ui/                   design primitives: rings, bars, chips, modals, sparklines
   viz/                  the frame player and every renderer
   problems/             list, row, hints, notes, scratchpad
-  dashboard/            streak, level, heatmap, radar, recommendation cards
+  dashboard/            streak, level, heatmap, radar, daily challenge, weekly spotlight
 lib/
   data/                 problems, topics, patterns, companies, sheets, quizzes
   algo/                 visualiser frame generators
-  engine/               srs, mastery, recommender, readiness, xp, achievements
+  engine/               srs, mastery, recommender, readiness, xp, achievements, daily
+  sound.ts              synthesised audio cues, no files
   store/                zustand store, the single source of progress
 hooks/                  learner snapshot, clock and hydration stores
 public/                 manifest, icons, service worker
+docs/                   the user guide PDF and the HTML it renders from
 ```
 
 ---
