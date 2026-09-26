@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Bar, Chip, Ring, SectionTitle } from "@/components/ui/bits";
 import { ProblemList } from "@/components/problems/ProblemList";
+import { PageNav, useOrigin } from "@/components/ui/PageNav";
 import { SHEET_MAP, nextSheet, prevSheet } from "@/lib/data/sheets";
 import { problemsInTier } from "@/lib/data/problems";
 import { useSnapshot } from "@/hooks/useLearner";
@@ -17,6 +18,7 @@ import type { Difficulty } from "@/lib/types";
 export default function SheetDetail() {
   const params = useParams<{ slug: string }>();
   const sheet = SHEET_MAP[params.slug];
+  useOrigin(`/sheets/${params.slug}`, sheet?.name ?? "Sheets");
   const hydrated = useHydrated();
   const snap = useSnapshot();
   const activeSheet = useStore((s) => s.settings.activeSheet);
@@ -66,13 +68,7 @@ export default function SheetDetail() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-7">
-      <div className="flex items-center gap-2 text-xs text-faint">
-        <Link href="/sheets" className="hover:text-accent">
-          Sheets
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <span>{sheet.name}</span>
-      </div>
+      <PageNav fallback="/sheets" crumbs={[{ label: "Sheets", href: "/sheets" }, { label: sheet.name }]} />
 
       {/* header */}
       <div className="panel overflow-hidden">

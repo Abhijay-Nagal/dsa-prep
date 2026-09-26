@@ -9,7 +9,10 @@ import { PROBLEMS, mustDo } from "@/lib/data/problems";
 import { useTotals } from "@/hooks/useLearner";
 import { TOPICS } from "@/lib/data/topics";
 
+import { useOrigin } from "@/components/ui/PageNav";
+
 export default function ProblemsPage() {
+  useOrigin("/problems", "Problem bank");
   const totals = useTotals();
   const critical = useMemo(() => mustDo(), []);
 

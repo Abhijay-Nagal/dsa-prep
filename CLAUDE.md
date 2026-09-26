@@ -29,6 +29,24 @@ all 580+ routes statically prerendered, which is what makes the offline cache wo
 **Problem ids are URLs.** An id must match its title. There is no redirect layer, so renaming an id breaks
 saved progress for that problem.
 
+**Colour comes from a palette, not a single accent.** `data-palette` on `<html>` selects a block in
+`app/globals.css`; Nebula lives in `:root` so it is the no-JS default and the server HTML is already right. Two places
+set the attribute: the pre-paint script in `app/layout.tsx` and the effect in `Shell`. `lib/data/palettes.ts` holds
+preview swatches only, so its colours must be kept in sync with the CSS by hand. Nothing hardcodes a brand colour:
+glows, selection, the body washes, the primary button shadow and the pulse ring all derive from `--accent` with
+`color-mix`, which is what makes a palette apply everywhere rather than in half the UI. `--easy`, `--medium` and
+`--hard` are deliberately identical in every palette, because they carry meaning.
+
+**Detail pages get back navigation from `components/ui/PageNav.tsx`.** Back uses `router.back()` when
+`window.history.length > 1` and pushes the `fallback` otherwise, which is the cold-open case (a shared link, or a PWA
+shortcut, where `router.back()` would leave the app). The named origin chip is a separate affordance fed by
+`useOrigin(href, label)`, which list pages call to record themselves. Call `useOrigin` *before* any `notFound()` guard
+and pass optional-chained values, or it becomes a conditional hook.
+
+**The persisted state is an explicit allowlist.** `partialize` in the store names every key that reaches
+`localStorage`. `origin`, `toasts` and `hydrated` are left out on purpose: a persisted origin would show a misleading
+"back to Blind 75" chip in a fresh tab. Add new transient fields nowhere; add new durable fields to that list.
+
 **Bar and Ring take a 0..1 fraction, not a percentage.** Both clamp with `Math.min(1, value)`, so passing `72` renders
 as a full bar. Every caller passes a fraction.
 

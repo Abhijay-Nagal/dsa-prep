@@ -42,8 +42,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#05070d" },
-    { media: "(prefers-color-scheme: light)", color: "#f6f7fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#060a16" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f8fc" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -56,13 +56,18 @@ try {
   var raw = localStorage.getItem('dsa-prep-v1');
   var t = raw ? (JSON.parse(raw).state || {}).settings : null;
   if (t && t.theme) document.documentElement.dataset.theme = t.theme;
-  if (t && t.accent) document.documentElement.style.setProperty('--accent', t.accent);
+  if (t && t.palette) document.documentElement.dataset.palette = t.palette;
 } catch (e) {}
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" className={`${sans.variable} ${mono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      data-theme="dark"
+      data-palette="nebula"
+      className={`${sans.variable} ${mono.variable} h-full antialiased`}
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

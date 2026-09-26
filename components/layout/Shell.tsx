@@ -132,7 +132,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hydrated = useHydratedLocal();
   const theme = useStore((s) => s.settings.theme);
-  const accent = useStore((s) => s.settings.accent);
+  const palette = useStore((s) => s.settings.palette);
   const setSetting = useStore((s) => s.setSetting);
   const streak = useStore((s) => s.streak);
   const rating = useStore((s) => s.rating);
@@ -140,8 +140,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!hydrated) return;
     document.documentElement.dataset.theme = theme;
-    document.documentElement.style.setProperty("--accent", accent);
-  }, [theme, accent, hydrated]);
+    document.documentElement.dataset.palette = palette;
+  }, [theme, palette, hydrated]);
 
   return (
     <div className="flex min-h-screen">

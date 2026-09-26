@@ -8,6 +8,7 @@ import { Bar, Chip, CountUp, DiffBadge, Empty, SectionTitle, Stat, cx } from "@/
 import { LevelCard, MasteryRadar, RecommendationCard, SkillGapList, StreakCard } from "@/components/dashboard/widgets";
 import { DailyCard, WeeklySpotlight } from "@/components/dashboard/daily";
 import { useNow } from "@/hooks/useNow";
+import { useOrigin } from "@/components/ui/PageNav";
 import { ProblemRow } from "@/components/problems/ProblemList";
 import { useDailyPlan, useDueReviews, useRecommendations, useSheetStats, useSnapshot, useTotals, useWeakSkills } from "@/hooks/useLearner";
 import { useStore } from "@/lib/store/useStore";
@@ -44,6 +45,7 @@ export default function Dashboard() {
   const setSetting = useStore((s) => s.setSetting);
   const dailyMinutes = useStore((s) => s.settings.dailyMinutes);
   const now = useNow();
+  useOrigin("/", "Today’s plan");
 
   const sheet = SHEET_MAP[activeSheet] ?? SHEETS[0];
   const active = sheets.find((s) => s.sheet.id === sheet.id)!;

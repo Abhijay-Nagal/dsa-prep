@@ -22,7 +22,10 @@ const GRADES: { g: Grade; label: string; body: string; color: string; icon: stri
   { g: 4, label: "Easy", body: "Instant, could write it blind", color: "var(--easy)", icon: "Zap" },
 ];
 
+import { useOrigin } from "@/components/ui/PageNav";
+
 export default function RevisePage() {
+  useOrigin("/revise", "Review queue");
   const due = useDueReviews();
   const hydrated = useHydrated();
   const gradeReview = useStore((s) => s.gradeReview);

@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Chip, DiffBadge } from "@/components/ui/bits";
 import { ApproachPanel, HintLadder, NotesPanel, PlatformLinks, SolveBar } from "@/components/problems/detail";
 import { CodePad } from "@/components/problems/CodePad";
+import { PageNav } from "@/components/ui/PageNav";
 import { InterviewMode } from "@/components/problems/InterviewMode";
 import { ProblemRow, StarButton } from "@/components/problems/ProblemList";
 import { PROBLEM_MAP, PROBLEMS, byPattern } from "@/lib/data/problems";
@@ -60,17 +61,15 @@ export default function ProblemDetail() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-6">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-faint">
-        <Link href="/problems" className="hover:text-accent">
-          Problems
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <Link href={`/learn/${problem.topic}`} className="hover:text-accent">
-          {topic?.name}
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <span className="truncate">{problem.title}</span>
-      </div>
+      <PageNav
+        fallback="/problems"
+        showOrigin
+        crumbs={[
+          { label: "Problems", href: "/problems" },
+          { label: topic?.name ?? problem.topic, href: `/learn/${problem.topic}` },
+          { label: problem.title },
+        ]}
+      />
 
       {/* header */}
       <div className="panel overflow-hidden">

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Bar, Chip, Ring, SectionTitle, cx } from "@/components/ui/bits";
 import { ProblemList } from "@/components/problems/ProblemList";
+import { PageNav, useOrigin } from "@/components/ui/PageNav";
 import { COMPANY_MAP } from "@/lib/data/companies";
 import { companyEntries, companyPhases, companyReadiness } from "@/lib/engine/readiness";
 import { useSnapshot } from "@/hooks/useLearner";
@@ -16,6 +17,7 @@ import { TOPIC_MAP } from "@/lib/data/topics";
 export default function CompanyDetail() {
   const params = useParams<{ slug: string }>();
   const company = COMPANY_MAP[params.slug];
+  useOrigin(`/companies/${params.slug}`, company?.name ?? "Companies");
   const snap = useSnapshot();
   const hydrated = useHydrated();
   const target = useStore((s) => s.settings.targetCompany);
@@ -36,13 +38,7 @@ export default function CompanyDetail() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-7">
-      <div className="flex items-center gap-2 text-xs text-faint">
-        <Link href="/companies" className="hover:text-accent">
-          Companies
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <span>{company.name}</span>
-      </div>
+      <PageNav fallback="/companies" crumbs={[{ label: "Companies", href: "/companies" }, { label: company.name }]} />
 
       {/* header */}
       <div className="panel overflow-hidden">

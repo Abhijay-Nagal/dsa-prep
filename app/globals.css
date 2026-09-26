@@ -2,8 +2,103 @@
 
 /* ============================================================
    DSA Prep — design tokens
+
+   Colour comes from a *palette*, selected with `data-palette` on <html>.
+   A palette sets its own background family as well as its accents, so
+   switching one changes the whole mood rather than just recolouring buttons.
+
+   Nebula lives directly in `:root` so it is the no-JS default and the server
+   HTML is already correct. Every other palette overrides it below.
+
+   Nothing hardcodes a brand colour: glows, selection, gradients and the pulse
+   ring are all derived from `--accent` with color-mix, which is what makes a
+   palette apply everywhere instead of in half the UI.
+
+   Difficulty colours (--easy / --medium / --hard) stay constant across every
+   palette on purpose. They carry meaning, so they must not shift under you.
    ============================================================ */
 :root {
+  /* Nebula — deep navy, azure into violet into pink */
+  --bg: #060a16;
+  --bg-elev: #0b1124;
+  --panel: #0e1428;
+  --panel-2: #141c36;
+  --border: #212c4e;
+  --border-soft: #1a2340;
+  --text: #e9eefb;
+  --text-dim: #9aa8c8;
+  --text-faint: #667596;
+
+  --accent: #2b8aff;
+  --accent-2: #8b5cf6;
+  --accent-3: #f472b6;
+
+  /* semantic, identical in every palette */
+  --easy: #2fd48f;
+  --medium: #ffb020;
+  --hard: #ff5f6d;
+  --gold: #ffcc4d;
+  --streak: #ff8a3d;
+
+  /* derived — these follow whatever --accent currently is */
+  --accent-soft: color-mix(in srgb, var(--accent) 15%, transparent);
+  --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.75);
+  --shadow-glow: 0 0 44px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+  --radius: 16px;
+}
+
+/* ---------- alternative palettes ---------- */
+
+:root[data-palette="orchid"] {
+  /* deep plum, magenta into violet into sky */
+  --bg: #0c0617;
+  --bg-elev: #140a24;
+  --panel: #170d29;
+  --panel-2: #1f1238;
+  --border: #32204f;
+  --border-soft: #281a43;
+  --text: #f2e9fb;
+  --text-dim: #b39ccb;
+  --text-faint: #7d6795;
+  --accent: #c026d3;
+  --accent-2: #7c3aed;
+  --accent-3: #38bdf8;
+}
+
+:root[data-palette="sunset"] {
+  /* deep aubergine, coral into hot pink into amber */
+  --bg: #140a12;
+  --bg-elev: #1d0f18;
+  --panel: #21121c;
+  --panel-2: #2b1726;
+  --border: #432236;
+  --border-soft: #371d2d;
+  --text: #fdeaea;
+  --text-dim: #cfa3ac;
+  --text-faint: #99707c;
+  --accent: #ff5c4d;
+  --accent-2: #ff2e88;
+  --accent-3: #ffc24b;
+}
+
+:root[data-palette="aurora"] {
+  /* deep teal ink, cyan into azure into violet */
+  --bg: #04120f;
+  --bg-elev: #071c18;
+  --panel: #09211c;
+  --panel-2: #0e2b25;
+  --border: #18433b;
+  --border-soft: #123630;
+  --text: #e4fbf4;
+  --text-dim: #93c4b9;
+  --text-faint: #648f85;
+  --accent: #0fb9b1;
+  --accent-2: #2b8aff;
+  --accent-3: #a78bfa;
+}
+
+:root[data-palette="indigo"] {
+  /* the original look, kept so nothing is lost */
   --bg: #05070d;
   --bg-elev: #0b0f1a;
   --panel: #0e1320;
@@ -13,37 +108,44 @@
   --text: #e8edf7;
   --text-dim: #9aa8c2;
   --text-faint: #64708a;
-
   --accent: #6d5efc;
   --accent-2: #b15cff;
   --accent-3: #34d3ff;
-  --accent-soft: rgba(109, 94, 252, 0.14);
-
-  --easy: #2fd48f;
-  --medium: #ffb020;
-  --hard: #ff5f6d;
-
-  --gold: #ffcc4d;
-  --streak: #ff8a3d;
-
-  --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.75);
-  --shadow-glow: 0 0 44px -12px rgba(109, 94, 252, 0.55);
-  --radius: 16px;
 }
 
+:root[data-palette="slate"] {
+  /* low chroma and quiet, for long sessions */
+  --bg: #0a0e14;
+  --bg-elev: #101620;
+  --panel: #131a26;
+  --panel-2: #1a2331;
+  --border: #273345;
+  --border-soft: #1f2938;
+  --text: #e6ecf5;
+  --text-dim: #97a5ba;
+  --text-faint: #64728a;
+  --accent: #3b82f6;
+  --accent-2: #6366f1;
+  --accent-3: #06b6d4;
+}
+
+/* ---------- light theme ----------
+   Must come after the palettes so its background family wins. Accents are left
+   alone, so the palette still shows through, and the page picks up a 4% wash of
+   the accent so light mode is themed rather than plain white. */
 :root[data-theme="light"] {
-  --bg: #f6f7fb;
+  --bg: color-mix(in srgb, var(--accent) 4%, #f7f8fc);
   --bg-elev: #ffffff;
   --panel: #ffffff;
-  --panel-2: #f2f4f9;
-  --border: #e2e6ef;
-  --border-soft: #eaedf4;
+  --panel-2: color-mix(in srgb, var(--accent) 5%, #f2f4f9);
+  --border: color-mix(in srgb, var(--accent) 12%, #e2e6ef);
+  --border-soft: color-mix(in srgb, var(--accent) 7%, #eaedf4);
   --text: #0f1626;
   --text-dim: #566078;
   --text-faint: #8b95aa;
-  --accent-soft: rgba(109, 94, 252, 0.1);
+  --accent-soft: color-mix(in srgb, var(--accent) 11%, transparent);
   --shadow-lg: 0 20px 50px -22px rgba(20, 26, 48, 0.28);
-  --shadow-glow: 0 0 40px -14px rgba(109, 94, 252, 0.35);
+  --shadow-glow: 0 0 40px -14px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 @theme inline {
@@ -73,20 +175,23 @@
 
 html, body { height: 100%; }
 
+/* Three drifting washes in the palette's own colours. `background-attachment:
+   fixed` keeps them still while content scrolls, so they read as lighting. */
 body {
   background:
-    radial-gradient(1200px 700px at 12% -8%, rgba(109, 94, 252, 0.16), transparent 60%),
-    radial-gradient(900px 600px at 92% 4%, rgba(52, 211, 255, 0.1), transparent 58%),
-    radial-gradient(800px 800px at 60% 110%, rgba(177, 92, 255, 0.09), transparent 60%),
+    radial-gradient(1200px 700px at 12% -8%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
+    radial-gradient(900px 600px at 92% 4%, color-mix(in srgb, var(--accent-3) 12%, transparent), transparent 58%),
+    radial-gradient(800px 800px at 60% 110%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 60%),
     var(--bg);
   background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
+  transition: background-color .3s ease;
 }
 
-::selection { background: rgba(109, 94, 252, 0.35); color: #fff; }
+::selection { background: color-mix(in srgb, var(--accent) 38%, transparent); color: #fff; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -139,7 +244,7 @@ body {
   .btn-primary {
     background: linear-gradient(100deg, var(--accent), var(--accent-2));
     border-color: transparent; color: #fff;
-    box-shadow: 0 8px 24px -10px rgba(109, 94, 252, .9);
+    box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--accent) 85%, transparent);
   }
   .btn-primary:hover { filter: brightness(1.09); }
   .btn-ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
@@ -168,9 +273,9 @@ body {
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(109,94,252,.5); }
-  70% { box-shadow: 0 0 0 14px rgba(109,94,252,0); }
-  100% { box-shadow: 0 0 0 0 rgba(109,94,252,0); }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent); }
+  70% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
 }
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

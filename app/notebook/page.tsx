@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
 import { DiffBadge, Empty, SectionTitle, Segmented, Stat, cx } from "@/components/ui/bits";
 import { useHydrated } from "@/hooks/useNow";
+import { useOrigin } from "@/components/ui/PageNav";
 import { useStore } from "@/lib/store/useStore";
 import { PROBLEM_MAP, PROBLEMS } from "@/lib/data/problems";
 import { TOPIC_MAP } from "@/lib/data/topics";
@@ -28,6 +29,7 @@ const TABS: { value: Tab; label: string; icon: string }[] = [
 
 export default function NotebookPage() {
   const hydrated = useHydrated();
+  useOrigin("/notebook", "Notebook");
   const progress = useStore((s) => s.progress);
   const recent = useStore((s) => s.recent);
   const [tab, setTab] = useState<Tab>("notes");

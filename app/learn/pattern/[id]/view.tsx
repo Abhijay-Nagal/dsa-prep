@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Chip, Ring, SectionTitle } from "@/components/ui/bits";
 import { ProblemList } from "@/components/problems/ProblemList";
+import { PageNav, useOrigin } from "@/components/ui/PageNav";
 import { PATTERNS, PATTERN_MAP } from "@/lib/data/patterns";
 import { TOPIC_MAP } from "@/lib/data/topics";
 import { byPattern } from "@/lib/data/problems";
@@ -17,6 +18,7 @@ import { masteryColor, masteryLabel } from "@/lib/engine/mastery";
 export default function PatternPage() {
   const params = useParams<{ id: string }>();
   const pattern = PATTERN_MAP[params.id];
+  useOrigin(`/learn/pattern/${params.id}`, pattern?.name ?? "Learn");
   const snap = useSnapshot();
   const problems = useMemo(() => (pattern ? byPattern(pattern.id) : []), [pattern]);
 
@@ -29,17 +31,14 @@ export default function PatternPage() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-7">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-faint">
-        <Link href="/learn" className="hover:text-accent">
-          Learn
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <Link href={`/learn/${pattern.topic}`} className="hover:text-accent">
-          {topic?.name}
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <span>{pattern.name}</span>
-      </div>
+      <PageNav
+        fallback="/learn"
+        crumbs={[
+          { label: "Learn", href: "/learn" },
+          { label: topic?.name ?? pattern.topic, href: `/learn/${pattern.topic}` },
+          { label: pattern.name },
+        ]}
+      />
 
       <div className="panel overflow-hidden">
         <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, var(--accent), transparent)` }} />

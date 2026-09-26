@@ -104,6 +104,15 @@ finish or give up.
 **Keyboard everywhere.** `Ctrl K` or `/` for search, `g` then a letter to jump to any page, `f` for the timer, `t` for
 the theme, `?` for the full cheat sheet. The palette also runs actions, not just navigation.
 
+**Back navigation that tells the truth.** Every detail page has a Back button that uses real history, so it restores
+your scroll position in the list you came from, plus a named chip linking straight back to that list ("Blind 75",
+"Google", "Today's plan"). The breadcrumb stays separate, because it describes a category path, not where you have
+been — clicking the topic crumb on a problem is meant to take you to that topic.
+
+**Six palettes.** Each one sets its own background family as well as its accents, so switching is a change of mood
+rather than a recoloured button: Nebula, Orchid, Sunset, Aurora, Indigo and Slate. Pick one in Profile or from the
+command palette. Difficulty colours never change, because they carry meaning.
+
 **Notebook.** Every note you wrote, everything starred, everything attempted but unfinished, and your recent history —
 searchable, editable in place, exportable as one Markdown file.
 

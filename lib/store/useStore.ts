@@ -12,10 +12,12 @@ import { bktUpdate, emptyMastery, paramsForDifficulty, attemptScore, problemRati
 import { emptyCard, review as srsReview } from "@/lib/engine/srs";
 import { bumpStreak, dayDiff, emptyStreak, levelFromXp, settleStreak, todayKey, xpForSolve, type StreakState } from "@/lib/engine/xp";
 import { newlyUnlocked } from "@/lib/engine/achievements";
+import { DEFAULT_PALETTE } from "@/lib/data/palettes";
 
 export interface Settings {
   theme: "dark" | "light";
-  accent: string;
+  /** Palette id from lib/data/palettes.ts. Applied as data-palette on <html>. */
+  palette: string;
   targetCompany?: string;
   activeSheet: string;
   activeTier: Tier;
@@ -74,6 +76,8 @@ interface StoreState {
   dailyDone: Record<string, string>;
   /** Most recently opened problem ids, newest first. Powers the palette. */
   recent: string[];
+  /** The list page that sent the user to the current detail page. */
+  origin?: { href: string; label: string };
 
   /* actions */
   setSetting: <K extends keyof Settings>(k: K, v: Settings[K]) => void;
@@ -94,6 +98,7 @@ interface StoreState {
   logFocus: (minutes: number) => void;
   claimDaily: (dateKey: string, problemId: string, xp: number) => void;
   touchRecent: (id: string) => void;
+  setOrigin: (o: { href: string; label: string }) => void;
   resetAll: () => void;
   importState: (json: string) => boolean;
   exportState: () => string;
@@ -109,7 +114,7 @@ const emptyProgress = (): ProblemProgress => ({
 
 const defaultSettings: Settings = {
   theme: "dark",
-  accent: "#6d5efc",
+  palette: DEFAULT_PALETTE,
   activeSheet: "blind-75",
   activeTier: 75,
   dailyMinutes: 90,
@@ -384,6 +389,9 @@ export const useStore = create<StoreState>()(
       touchRecent: (id) =>
         set((s) => (s.recent[0] === id ? s : { recent: [id, ...s.recent.filter((x) => x !== id)].slice(0, 14) })),
 
+      setOrigin: (o) =>
+        set((s) => (s.origin?.href === o.href && s.origin?.label === o.label ? s : { origin: o })),
+
       resetAll: () =>
         set({
           progress: {}, mastery: {}, rating: BASE_RATING, ratingHistory: [], xp: 0,
@@ -492,6 +500,34 @@ export const useStore = create<StoreState>()(
     {
       name: "dsa-prep-v1",
       version: 1,
+      /**
+       * An explicit allowlist, so a new transient field cannot leak into
+       * storage by accident. `origin`, `toasts` and `hydrated` are per-session:
+       * a persisted `origin` would show a misleading "back to Blind 75" chip in
+       * a fresh tab, and persisted toasts would replay on reload.
+       */
+      partialize: (s) =>
+        ({
+          settings: s.settings,
+          progress: s.progress,
+          mastery: s.mastery,
+          rating: s.rating,
+          ratingHistory: s.ratingHistory,
+          xp: s.xp,
+          streak: s.streak,
+          days: s.days,
+          achievements: s.achievements,
+          vizWatched: s.vizWatched,
+          arenaWins: s.arenaWins,
+          bestQuiz: s.bestQuiz,
+          reviewCount: s.reviewCount,
+          lastSolvedId: s.lastSolvedId,
+          onboarded: s.onboarded,
+          focusSessions: s.focusSessions,
+          focusMinutes: s.focusMinutes,
+          dailyDone: s.dailyDone,
+          recent: s.recent,
+        }) as unknown as StoreState,
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hydrated = true;

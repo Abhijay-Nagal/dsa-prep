@@ -14,6 +14,7 @@ import { NAV } from "./Shell";
 import { useStore } from "@/lib/store/useStore";
 import { PROBLEM_MAP } from "@/lib/data/problems";
 import { useHydrated } from "@/hooks/useNow";
+import { PALETTES } from "@/lib/data/palettes";
 
 interface Item {
   id: string;
@@ -60,6 +61,7 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const hydrated = useHydrated();
   const theme = useStore((s) => s.settings.theme);
+  const activePalette = useStore((s) => s.settings.palette);
   const setSetting = useStore((s) => s.setSetting);
   const recent = useStore((s) => s.recent);
 
@@ -118,6 +120,27 @@ export function CommandPalette() {
     ];
     for (const a of actions) push({ id: `act-${a.label}`, label: a.label, sub: a.sub, icon: a.icon, run: a.run, group: "Actions" }, a.label);
 
+    for (const pal of PALETTES) {
+      push(
+        {
+          id: `pal-${pal.id}`,
+          label: `Palette: ${pal.name}`,
+          sub: pal.id === activePalette ? "Current" : pal.blurb,
+          icon: "Sparkles",
+          run: () => setSetting("palette", pal.id),
+          group: "Palette",
+          badge: (
+            <span className="flex gap-0.5">
+              {pal.swatch.map((c) => (
+                <span key={c} className="h-3 w-3 rounded-full" style={{ background: c }} />
+              ))}
+            </span>
+          ),
+        },
+        `palette ${pal.name} theme colour`,
+      );
+    }
+
     for (const p of PROBLEMS) {
       push(
         {
@@ -161,7 +184,7 @@ export function CommandPalette() {
       ];
     }
     return out.sort((a, b) => b.score - a.score).slice(0, 24);
-  }, [q, theme, setSetting, router, hydrated, recent]);
+  }, [q, theme, activePalette, setSetting, router, hydrated, recent]);
 
   const go = (item?: Item) => {
     const target = item ?? items[sel];

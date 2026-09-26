@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { VizPlayer } from "@/components/viz/VizPlayer";
+import { PageNav } from "@/components/ui/PageNav";
 import { ALGO_MAP, ALGOS, algosForTopic } from "@/lib/algo/registry";
 import { TOPIC_MAP } from "@/lib/data/topics";
 
@@ -18,17 +19,14 @@ export default function VisualizeDetail() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-6">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-faint">
-        <Link href="/visualize" className="hover:text-accent">
-          Visualise
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <Link href={`/learn/${algo.topic}`} className="hover:text-accent">
-          {TOPIC_MAP[algo.topic]?.name}
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <span>{algo.name}</span>
-      </div>
+      <PageNav
+        fallback="/visualize"
+        crumbs={[
+          { label: "Visualise", href: "/visualize" },
+          { label: TOPIC_MAP[algo.topic]?.name ?? algo.topic, href: `/learn/${algo.topic}` },
+          { label: algo.name },
+        ]}
+      />
 
       <VizPlayer key={algo.slug} algo={algo} />
 

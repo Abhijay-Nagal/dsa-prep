@@ -2,7 +2,7 @@
 
 | File | What it is |
 |---|---|
-| `DSA-Prep-User-Guide.pdf` | The user guide. Five A4 pages: setup, the daily loop, working problems, tools and shortcuts, data and routine. |
+| `DSA-Prep-User-Guide.pdf` | The user guide. Five A4 pages: setup, the daily loop, working problems, tools and shortcuts, then data, routine and looks. |
 | `user-guide.html` | The source the PDF is rendered from. Edit this, never the PDF. |
 
 ## Regenerating the PDF
@@ -31,7 +31,7 @@ document.querySelectorAll(".page").forEach((s, i) =>
   console.log(i + 1, s.getBoundingClientRect().height, "slack", limit - s.getBoundingClientRect().height));
 ```
 
-Every section currently has 149–286px of slack. If you add a block and one goes negative, move a whole `<h2>` section
+Every section currently has 103–207px of slack. If you add a block and one goes negative, move a whole `<h2>` section
 to a neighbouring page rather than shrinking type.
 
 Footers carry a label (`Setup and first run`, `The daily loop`, …) instead of a page number, precisely so that adding a

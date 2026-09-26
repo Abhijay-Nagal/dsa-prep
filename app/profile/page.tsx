@@ -6,20 +6,14 @@ import { Icon } from "@/components/ui/Icon";
 import { Bar, Chip, Modal, Ring, SectionTitle, Segmented, cx } from "@/components/ui/bits";
 import { ACHIEVEMENTS, TIER_COLOR } from "@/lib/engine/achievements";
 import { useStore } from "@/lib/store/useStore";
+import { PALETTES } from "@/lib/data/palettes";
 import { useHydrated } from "@/components/layout/Shell";
 import { levelFromXp, levelTitle } from "@/lib/engine/xp";
 import { ratingBand } from "@/lib/engine/mastery";
 import { COMPANIES } from "@/lib/data/companies";
 import { SHEETS } from "@/lib/data/sheets";
 
-const ACCENTS = [
-  { name: "Indigo", value: "#6d5efc" },
-  { name: "Violet", value: "#b15cff" },
-  { name: "Cyan", value: "#34d3ff" },
-  { name: "Emerald", value: "#2fd48f" },
-  { name: "Amber", value: "#ffb020" },
-  { name: "Rose", value: "#ff5f6d" },
-];
+
 
 export default function ProfilePage() {
   const hydrated = useHydrated();
@@ -257,25 +251,38 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <span className="mb-2 block text-xs font-semibold">Accent</span>
-                <div className="flex flex-wrap gap-2">
-                  {ACCENTS.map((a) => (
-                    <button
-                      key={a.value}
-                      onClick={() => setSetting("accent", a.value)}
-                      className={cx(
-                        "grid h-9 w-9 place-items-center rounded-xl border-2 transition-transform hover:scale-110",
-                        settings.accent === a.value && "scale-110",
-                      )}
-                      style={{
-                        background: `${a.value}22`,
-                        borderColor: settings.accent === a.value ? a.value : "transparent",
-                      }}
-                      title={a.name}
-                    >
-                      <span className="h-4 w-4 rounded-full" style={{ background: a.value }} />
-                    </button>
-                  ))}
+                <span className="mb-1 block text-xs font-semibold">Palette</span>
+                <p className="mb-2.5 text-[11px] text-faint">
+                  Each one changes the background family as well as the accents. Difficulty colours never change.
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {PALETTES.map((pal) => {
+                    const active = settings.palette === pal.id;
+                    return (
+                      <button
+                        key={pal.id}
+                        onClick={() => setSetting("palette", pal.id)}
+                        className={cx(
+                          "overflow-hidden rounded-xl border-2 text-left transition-transform hover:-translate-y-0.5",
+                          active ? "border-accent" : "border-line",
+                        )}
+                        title={pal.blurb}
+                      >
+                        <span
+                          className="flex h-10 items-end gap-1 p-2"
+                          style={{ background: pal.bg }}
+                        >
+                          {pal.swatch.map((c) => (
+                            <span key={c} className="h-4 flex-1 rounded" style={{ background: c }} />
+                          ))}
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-panel-2 px-2.5 py-1.5">
+                          <span className="flex-1 truncate text-xs font-semibold">{pal.name}</span>
+                          {active && <Icon name="Check" size={13} className="shrink-0 text-accent" />}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div className="flex flex-wrap gap-4">

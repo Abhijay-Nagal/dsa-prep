@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Chip, DiffBadge, Ring, SectionTitle } from "@/components/ui/bits";
 import { ProblemList } from "@/components/problems/ProblemList";
+import { PageNav, useOrigin } from "@/components/ui/PageNav";
 import { TOPICS, TOPIC_MAP, topicPath } from "@/lib/data/topics";
 import { PATTERNS } from "@/lib/data/patterns";
 import { byTopic } from "@/lib/data/problems";
@@ -18,6 +19,8 @@ import { useHydrated } from "@/components/layout/Shell";
 export default function TopicPage() {
   const params = useParams<{ topic: string }>();
   const topic = TOPIC_MAP[params.topic];
+  // Unconditional: this runs before the notFound() guard below.
+  useOrigin(`/learn/${params.topic}`, topic?.name ?? "Learn");
   const snap = useSnapshot();
   const hydrated = useHydrated();
 
@@ -36,13 +39,7 @@ export default function TopicPage() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-7">
-      <div className="flex items-center gap-2 text-xs text-faint">
-        <Link href="/learn" className="hover:text-accent">
-          Learn
-        </Link>
-        <Icon name="ChevronRight" size={12} />
-        <span>{topic.name}</span>
-      </div>
+      <PageNav fallback="/learn" crumbs={[{ label: "Learn", href: "/learn" }, { label: topic.name }]} />
 
       {/* header */}
       <div className="panel overflow-hidden">
