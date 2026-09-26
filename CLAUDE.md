@@ -37,6 +37,18 @@ glows, selection, the body washes, the primary button shadow and the pulse ring 
 `color-mix`, which is what makes a palette apply everywhere rather than in half the UI. `--easy`, `--medium` and
 `--hard` are deliberately identical in every palette, because they carry meaning.
 
+**LeetCode progress is keyed by normalised title, not by problem id.** `lib/data/lc.ts` owns `lcKey`, which collapses a
+title, a LeetCode slug and a full problem URL onto one key, so a pasted list parses in any of those shapes. Keys for
+problems *outside* the bank are stored too: they keep the count honest and are matched automatically if that problem is
+ever added. `problemLcKeys` is cached by problem id because it runs inside a Zustand selector in every row of a 486-row
+list. Never fold this into `progress` — "beaten on LeetCode" and "done in this sheet" are deliberately different facts.
+
+**`lib/engine/similar.ts` weights a shared pattern by how rare it is.** `unbounded-knapsack` covers four problems that
+really are one idea; `divide-conquer` spans merge sort, counting inversions and Kadane, which are related only in the
+abstract. So each shared pattern scores `8 + 22 * (1 - (count-1)/24)`, halved again when the two problems sit in
+different topics. Without that damping, Maximum Subarray offers Sort List as practice. Candidates come only from the
+bank, because those are the problems whose LeetCode ids have been checked — never invent one.
+
 **Detail pages get back navigation from `components/ui/PageNav.tsx`.** Back uses `router.back()` when
 `window.history.length > 1` and pushes the `fallback` otherwise, which is the cold-open case (a shared link, or a PWA
 shortcut, where `router.back()` would leave the app). The named origin chip is a separate affordance fed by
@@ -93,6 +105,11 @@ There is no test runner. To check everything, add a temporary `app/selftest/rout
 inputs, and validate the bank for duplicate ids, unknown patterns, unknown companies, dangling variants and
 missing external ids. Run it against `next dev` and delete it afterwards. Do not prerender it, since running
 every visualiser at build time exhausts the build worker heap.
+
+For `lib/data/lc.ts` and `lib/engine/similar.ts`, import `LC_SEED`, then assert: re-importing adds zero keys; the
+title, slug, URL and numbered forms of one problem collapse to a single key; no suggestion is already marked as solved
+on LeetCode; and no problem suggests itself. Print the suggestions for a handful of well-known problems and actually
+read them — the scoring is a heuristic, and a bad neighbour is only visible by eye.
 
 For `lib/engine/daily.ts`, loop 400+ consecutive dates and assert the weekday difficulty rota, that no two adjacent
 days draw the same problem, that every pick resolves in `PROBLEM_MAP`, and that calling twice with the same key is

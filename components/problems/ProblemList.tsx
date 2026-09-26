@@ -6,7 +6,8 @@ import { AnimatePresence, motion } from "motion/react";
 import type { Difficulty, Problem, SolveStatus, Tier } from "@/lib/types";
 import { Icon } from "@/components/ui/Icon";
 import { Chip, DiffBadge, Segmented, cx } from "@/components/ui/bits";
-import { useStore } from "@/lib/store/useStore";
+import { useStore, useLcSolved } from "@/lib/store/useStore";
+import { isLcSolved } from "@/lib/data/lc";
 import { useHydrated } from "@/components/layout/Shell";
 import { TOPIC_MAP, topicName } from "@/lib/data/topics";
 import { PATTERN_MAP } from "@/lib/data/patterns";
@@ -83,6 +84,7 @@ export function ProblemRow({
 }) {
   const hydrated = useHydrated();
   const prog = useStore((s) => s.progress[p.id]);
+  const lcDone = useLcSolved(p.id);
   const solved = hydrated && prog?.status === "solved";
   const carried = sheetTier !== undefined && solved && p.tier < sheetTier;
   const topic = TOPIC_MAP[p.topic];
@@ -122,6 +124,11 @@ export function ProblemRow({
             </span>
           )}
           {p.premium && <Chip className="!text-[9px]">premium</Chip>}
+          {hydrated && lcDone && (
+            <Chip color="#ffa116" icon="BadgeCheck" className="!text-[9px]">
+              on LeetCode
+            </Chip>
+          )}
           {carried && (
             <Chip color="var(--easy)" icon="Check" className="!text-[9px]">
               done in {SHEETS.find((s) => s.tier === p.tier)?.short ?? p.tier}
@@ -218,6 +225,8 @@ export function ProblemList({
   const [sort, setSort] = useState<SortKey>("default");
   const [grouped, setGrouped] = useState(groupByTopic);
   const [mustOnly, setMustOnly] = useState(false);
+  const [lcFilter, setLcFilter] = useState<"all" | "done" | "not">("all");
+  const lcSolved = useStore((s) => s.lcSolved);
 
   const topics = useMemo(() => [...new Set(problems.map((p) => p.topic))].sort(), [problems]);
   const patterns = useMemo(() => [...new Set(problems.flatMap((p) => p.patterns))].sort(), [problems]);
@@ -231,6 +240,11 @@ export function ProblemList({
       if (pattern !== "all" && !p.patterns.includes(pattern)) return false;
       if (company !== "all" && !p.companies.includes(company)) return false;
       if (mustOnly && !p.must) return false;
+      if (lcFilter !== "all") {
+        const done = isLcSolved(lcSolved, p);
+        if (lcFilter === "done" && !done) return false;
+        if (lcFilter === "not" && done) return false;
+      }
       if (status !== "all") {
         const st = progress[p.id]?.status ?? "todo";
         if (status === "starred" && !progress[p.id]?.starred) return false;
@@ -246,7 +260,7 @@ export function ProblemList({
     if (sort === "topic") out = [...out].sort((a, b) => (TOPIC_MAP[a.topic]?.order ?? 99) - (TOPIC_MAP[b.topic]?.order ?? 99));
     if (sort === "title") out = [...out].sort((a, b) => a.title.localeCompare(b.title));
     return out;
-  }, [problems, q, diff, topic, pattern, company, status, sort, mustOnly, progress]);
+  }, [problems, q, diff, topic, pattern, company, status, sort, mustOnly, progress, lcFilter, lcSolved]);
 
   const solvedCount = hydrated ? filtered.filter((p) => progress[p.id]?.status === "solved").length : 0;
 
@@ -264,9 +278,11 @@ export function ProblemList({
 
   const clear = () => {
     setQ(""); setDiff("all"); setStatus("all"); setTopic("all"); setPattern("all");
-    setCompany("all"); setMustOnly(false); setSort("default");
+    setCompany("all"); setMustOnly(false); setSort("default"); setLcFilter("all");
   };
-  const anyFilter = q || diff !== "all" || status !== "all" || topic !== "all" || pattern !== "all" || company !== "all" || mustOnly;
+  const anyFilter =
+    q || diff !== "all" || status !== "all" || topic !== "all" || pattern !== "all" || company !== "all" || mustOnly ||
+    lcFilter !== "all";
 
   return (
     <div className="space-y-3">
@@ -339,6 +355,16 @@ export function ProblemList({
               <option value="topic">By topic</option>
               <option value="title">A to Z</option>
             </select>
+            <Segmented
+              size="sm"
+              value={lcFilter}
+              onChange={setLcFilter}
+              options={[
+                { value: "all", label: "LeetCode: any" },
+                { value: "not", label: "Not done" },
+                { value: "done", label: "Done" },
+              ]}
+            />
             <button className={cx("btn !py-1.5 !text-xs", mustOnly && "!border-gold !text-gold")} onClick={() => setMustOnly((v) => !v)}>
               <Icon name="Star" size={12} /> Must do
             </button>

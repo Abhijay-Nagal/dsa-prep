@@ -109,6 +109,12 @@ your scroll position in the list you came from, plus a named chip linking straig
 "Google", "Today's plan"). The breadcrumb stays separate, because it describes a category path, not where you have
 been — clicking the topic crumb on a problem is meant to take you to that topic.
 
+**Already solved it on LeetCode?** Mark it, and that is tracked separately from the sheet tick, because the two answer
+different questions: one is "have I beaten this problem", the other is "have I worked through this sheet". What the mark
+buys you is a list of the same idea in problems you have *not* solved, ranked by shared pattern, so the concept gets
+practised without repeating the problem. Bulk import a list in Profile — titles, slugs, URLs and numbered lines all
+parse, and import is additive. Lists show an orange badge, and the problem bank can filter on it.
+
 **Six palettes.** Each one sets its own background family as well as its accents, so switching is a change of mood
 rather than a recoloured button: Nebula, Orchid, Sunset, Aurora, Indigo and Slate. Pick one in Profile or from the
 command palette. Difficulty colours never change, because they carry meaning.

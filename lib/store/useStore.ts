@@ -13,6 +13,7 @@ import { emptyCard, review as srsReview } from "@/lib/engine/srs";
 import { bumpStreak, dayDiff, emptyStreak, levelFromXp, settleStreak, todayKey, xpForSolve, type StreakState } from "@/lib/engine/xp";
 import { newlyUnlocked } from "@/lib/engine/achievements";
 import { DEFAULT_PALETTE } from "@/lib/data/palettes";
+import { lcKey, parseLcList, problemLcKeys, type LcImportReport } from "@/lib/data/lc";
 
 export interface Settings {
   theme: "dark" | "light";
@@ -78,6 +79,12 @@ interface StoreState {
   recent: string[];
   /** The list page that sent the user to the current detail page. */
   origin?: { href: string; label: string };
+  /**
+   * Problems already solved on LeetCode, by normalised title. Separate from
+   * `progress` on purpose: it means "already beaten, do not make me repeat it",
+   * not "done in this sheet". Keys can name problems outside the bank.
+   */
+  lcSolved: Record<string, true>;
 
   /* actions */
   setSetting: <K extends keyof Settings>(k: K, v: Settings[K]) => void;
@@ -99,6 +106,11 @@ interface StoreState {
   claimDaily: (dateKey: string, problemId: string, xp: number) => void;
   touchRecent: (id: string) => void;
   setOrigin: (o: { href: string; label: string }) => void;
+  /** Flips the LeetCode mark for one bank problem. */
+  toggleLcSolved: (problemId: string) => void;
+  /** Adds a pasted list. Additive, so re-importing is harmless. */
+  importLcList: (text: string) => LcImportReport;
+  clearLcSolved: () => void;
   resetAll: () => void;
   importState: (json: string) => boolean;
   exportState: () => string;
@@ -174,6 +186,7 @@ export const useStore = create<StoreState>()(
       focusMinutes: 0,
       dailyDone: {},
       recent: [],
+      lcSolved: {},
 
       setSetting: (k, v) => set((s) => ({ settings: { ...s.settings, [k]: v } })),
 
@@ -392,12 +405,49 @@ export const useStore = create<StoreState>()(
       setOrigin: (o) =>
         set((s) => (s.origin?.href === o.href && s.origin?.label === o.label ? s : { origin: o })),
 
+      toggleLcSolved: (problemId) => {
+        const problem = PROBLEM_MAP[problemId];
+        if (!problem) return;
+        const keys = problemLcKeys(problem);
+        const s = get();
+        const on = keys.some((k) => s.lcSolved[k]);
+        const next = { ...s.lcSolved };
+        // Write every alias so a later title or slug change still matches.
+        for (const k of keys) {
+          if (on) delete next[k];
+          else next[k] = true;
+        }
+        set({ lcSolved: next });
+        if (!on) {
+          get().pushToast({
+            kind: "info",
+            title: "Marked as solved on LeetCode",
+            body: "Similar problems you have not done yet are listed on the page.",
+            icon: "ExternalLink",
+          });
+        }
+      },
+
+      importLcList: (text) => {
+        const s = get();
+        const report = parseLcList(text, s.lcSolved);
+        if (report.keys.length) {
+          const next = { ...s.lcSolved };
+          for (const k of report.keys) next[k] = true;
+          set({ lcSolved: next });
+        }
+        return report;
+      },
+
+      clearLcSolved: () => set({ lcSolved: {} }),
+
       resetAll: () =>
         set({
           progress: {}, mastery: {}, rating: BASE_RATING, ratingHistory: [], xp: 0,
           streak: emptyStreak(), days: {}, achievements: [], vizWatched: [],
           arenaWins: 0, bestQuiz: 0, reviewCount: 0, toasts: [],
           focusSessions: 0, focusMinutes: 0, dailyDone: {}, recent: [],
+          lcSolved: {},
         }),
 
       exportState: () => {
@@ -412,6 +462,7 @@ export const useStore = create<StoreState>()(
             bestQuiz: s.bestQuiz, reviewCount: s.reviewCount,
             onboarded: s.onboarded, focusSessions: s.focusSessions,
             focusMinutes: s.focusMinutes, dailyDone: s.dailyDone, recent: s.recent,
+            lcSolved: s.lcSolved,
           },
           null,
           2,
@@ -441,6 +492,7 @@ export const useStore = create<StoreState>()(
             focusMinutes: d.focusMinutes ?? 0,
             dailyDone: d.dailyDone ?? {},
             recent: d.recent ?? [],
+            lcSolved: d.lcSolved ?? {},
           });
           return true;
         } catch {
@@ -527,6 +579,7 @@ export const useStore = create<StoreState>()(
           focusMinutes: s.focusMinutes,
           dailyDone: s.dailyDone,
           recent: s.recent,
+          lcSolved: s.lcSolved,
         }) as unknown as StoreState,
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -544,6 +597,17 @@ export const useSolvedCount = () =>
   useStore((s) => Object.values(s.progress).filter((p) => p.status === "solved").length);
 
 export const useProblemProgress = (id: string) => useStore((s) => s.progress[id]);
+
+/** True when this problem is marked as already solved on LeetCode. */
+export const useLcSolved = (id: string) =>
+  useStore((s) => {
+    const p = PROBLEM_MAP[id];
+    if (!p) return false;
+    return problemLcKeys(p).some((k) => s.lcSolved[k]);
+  });
+
+/** Used by the importer to show what a paste would do before it is applied. */
+export const lcKeyOf = lcKey;
 
 export const useLevel = () => useStore((s) => levelFromXp(s.xp));
 

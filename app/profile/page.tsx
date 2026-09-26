@@ -7,6 +7,7 @@ import { Bar, Chip, Modal, Ring, SectionTitle, Segmented, cx } from "@/component
 import { ACHIEVEMENTS, TIER_COLOR } from "@/lib/engine/achievements";
 import { useStore } from "@/lib/store/useStore";
 import { PALETTES } from "@/lib/data/palettes";
+import { LeetCodeImport } from "@/components/problems/LeetCodeImport";
 import { useHydrated } from "@/components/layout/Shell";
 import { levelFromXp, levelTitle } from "@/lib/engine/xp";
 import { ratingBand } from "@/lib/engine/mastery";
@@ -326,6 +327,7 @@ export default function ProfilePage() {
 
       {tab === "data" && (
         <section className="space-y-4">
+          <LeetCodeImport />
           <div className="panel p-5">
             <SectionTitle
               icon="Download"
