@@ -419,15 +419,8 @@ export const useStore = create<StoreState>()(
           if (on) delete next[k];
           else next[k] = true;
         }
+        // No toast: the toggle turning orange is the confirmation.
         set({ lcSolved: next });
-        if (!on) {
-          get().pushToast({
-            kind: "info",
-            title: "Marked as solved on LeetCode",
-            body: "Its page now lists similar problems you have not done yet.",
-            icon: "ExternalLink",
-          });
-        }
       },
 
       importLcList: (text) => {
