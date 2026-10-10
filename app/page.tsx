@@ -291,7 +291,7 @@ export default function Dashboard() {
         </div>
         <div>
           <SectionTitle icon="Sparkles" title="Tools" sub="The parts people forget exist." />
-          <div className="panel divide-y divide-[var(--line-soft)]">
+          <div className="panel divide-y divide-[var(--border-soft)]">
             {[
               { href: "/roadmap", icon: "Map", label: "Syllabus roadmap", sub: "What to learn before what" },
               { href: "/visualize/compare", icon: "Swords", label: "Algorithm race", sub: "Two algorithms, one input" },

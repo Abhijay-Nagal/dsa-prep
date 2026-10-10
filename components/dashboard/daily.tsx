@@ -194,7 +194,7 @@ export function WeeklySpotlight() {
         </div>
       </div>
 
-      <div className="hairline divide-y divide-[var(--line-soft)]">
+      <div className="hairline divide-y divide-[var(--border-soft)]">
         {focus.problems.map((p) => {
           const isDone = progress[p.id]?.status === "solved";
           return (

@@ -197,7 +197,7 @@ export function InterviewMode({ problem }: { problem: Problem }) {
                     <span
                       key={p.name}
                       className="absolute -translate-x-1/2 text-[9px]"
-                      style={{ left: `${p.from * 100}%`, color: frac >= p.from ? p.color : "var(--faint)" }}
+                      style={{ left: `${p.from * 100}%`, color: frac >= p.from ? p.color : "var(--text-faint)" }}
                     >
                       |
                     </span>
@@ -250,7 +250,7 @@ export function InterviewMode({ problem }: { problem: Problem }) {
                       <Icon
                         name={passed ? "Check" : p.icon}
                         size={11}
-                        style={{ color: passed ? "var(--easy)" : active ? p.color : "var(--faint)" }}
+                        style={{ color: passed ? "var(--easy)" : active ? p.color : "var(--text-faint)" }}
                       />
                       <span className={cx("flex-1 truncate", active ? "font-semibold" : "text-dim")}>{p.name}</span>
                       <span className="font-mono text-[10px] text-faint">{clock(p.from * target)}</span>

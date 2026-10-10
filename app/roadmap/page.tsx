@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
-import { Bar, Chip, SectionTitle, cx } from "@/components/ui/bits";
+import { Bar, Chip, SectionTitle, cx, tint } from "@/components/ui/bits";
 import { useSnapshot, useTotals } from "@/hooks/useLearner";
 import { TOPICS, TOPIC_MAP } from "@/lib/data/topics";
 import { PROBLEMS } from "@/lib/data/problems";
@@ -19,10 +19,28 @@ import type { TopicId } from "@/lib/types";
  * sits below everything it depends on.
  */
 
-const NODE_W = 132;
+const NODE_W = 140;
 const NODE_H = 54;
-const COL_GAP = 26;
-const ROW_GAP = 74;
+const COL_GAP = 16;
+const ROW_GAP = 42;
+
+/**
+ * Edge and accent colours are topic colours pulled towards the text colour, so
+ * they keep their hue but read on every theme: darker on the light themes,
+ * lighter on the dark ones.
+ */
+const ink = (color: string, pct = 72) => `color-mix(in srgb, ${color} ${pct}%, var(--text))`;
+
+/** Splits a long topic name over two lines at the space nearest the middle. */
+function nameLines(name: string): string[] {
+  if (name.length <= 17) return [name];
+  const mid = name.length / 2;
+  let best = -1;
+  for (let i = 0; i < name.length; i++) {
+    if (name[i] === " " && (best < 0 || Math.abs(i - mid) < Math.abs(best - mid))) best = i;
+  }
+  return best < 0 ? [name] : [name.slice(0, best), name.slice(best + 1)];
+}
 
 interface Node {
   id: TopicId;
@@ -68,7 +86,7 @@ function buildLayout() {
 
   const pos: Record<string, Node> = Object.fromEntries(nodes.map((n) => [n.id, n]));
   const edges = TOPICS.flatMap((t) => t.prereq.map((p) => ({ from: p as TopicId, to: t.id })));
-  return { nodes, edges, pos, width, height: rows * (NODE_H + ROW_GAP) + 16, rows };
+  return { nodes, edges, pos, width, height: rows * (NODE_H + ROW_GAP) - ROW_GAP + 32, rows };
 }
 
 /** Everything `id` transitively depends on. */
@@ -187,10 +205,10 @@ export default function RoadmapPage() {
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--easy)" }} /> owned
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--accent)" }} /> in progress
+            <span className="h-1 w-4 rounded-full" style={{ background: "var(--text-dim)" }} /> in progress, in the topic colour
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--panel-2)" }} /> untouched
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--border)" }} /> untouched
           </span>
           <span className="flex items-center gap-1.5">
             <Icon name="Lock" size={11} /> prerequisites not ready
@@ -198,10 +216,12 @@ export default function RoadmapPage() {
           <span className="ml-auto hidden sm:inline">Hover a topic to trace what it needs and what it unlocks</span>
         </div>
 
-        <div className="overflow-x-auto p-4">
+        {/* Scales to the panel's width, and to the viewport's height on short screens, so the
+            whole graph is on screen at once with no scrolling sideways. */}
+        <div className="p-3 sm:p-4">
           <svg
             viewBox={`0 0 ${layoutData.width} ${layoutData.height}`}
-            style={{ minWidth: Math.min(layoutData.width, 980), width: "100%", height: "auto" }}
+            style={{ width: "100%", height: "auto", maxHeight: "calc(100vh - 150px)", display: "block" }}
             role="img"
             aria-label="Topic prerequisite graph"
           >
@@ -224,9 +244,9 @@ export default function RoadmapPage() {
                   key={`${e.from}-${e.to}`}
                   d={`M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`}
                   fill="none"
-                  stroke={lit ? TOPIC_MAP[e.from].color : "var(--line)"}
-                  strokeWidth={lit ? 1.8 : 1}
-                  strokeOpacity={highlight ? (lit ? 0.85 : 0.15) : 0.4}
+                  stroke={lit ? ink(TOPIC_MAP[e.from].color) : "var(--border)"}
+                  strokeWidth={highlight && lit ? 2.4 : 1.6}
+                  strokeOpacity={highlight ? (lit ? 1 : 0.35) : 0.75}
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 0.7, delay: Math.min(0.5, i * 0.012), ease: "easeOut" }}
@@ -240,7 +260,8 @@ export default function RoadmapPage() {
               const solved = totals.byTopic[n.id] ?? 0;
               const gate = locked[n.id];
               const dim = highlight ? !(n.id === hover || highlight.up.has(n.id) || highlight.down.has(n.id)) : false;
-              const fill = m >= 0.7 ? "var(--easy)" : m > 0.05 ? t.color : "var(--panel-2)";
+              const fill = m >= 0.7 ? "var(--easy)" : ink(t.color, 85);
+              const lines = nameLines(t.name);
               return (
                 <motion.g
                   key={n.id}
@@ -259,14 +280,17 @@ export default function RoadmapPage() {
                       height={NODE_H}
                       rx={12}
                       fill="var(--panel)"
-                      stroke={n.id === hover ? t.color : "var(--line)"}
-                      strokeWidth={n.id === hover ? 2 : 1}
+                      stroke={n.id === hover ? ink(t.color, 85) : "var(--border)"}
+                      strokeWidth={n.id === hover ? 2 : 1.2}
                     />
-                    {/* mastery fill along the bottom edge */}
                     <clipPath id={`clip-${n.id}`}>
                       <rect x={n.x} y={n.y} width={NODE_W} height={NODE_H} rx={12} />
                     </clipPath>
                     <g clipPath={`url(#clip-${n.id})`}>
+                      {/* topic colour down the left edge, so related nodes are easy to pick out */}
+                      <rect x={n.x} y={n.y} width={4} height={NODE_H} fill={ink(t.color, 85)} />
+                      {/* mastery along the bottom edge; untouched shows as an empty track */}
+                      <rect x={n.x} y={n.y + NODE_H - 4} width={NODE_W} height={4} fill="var(--border-soft)" />
                       <motion.rect
                         x={n.x}
                         y={n.y + NODE_H - 4}
@@ -277,23 +301,29 @@ export default function RoadmapPage() {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                       />
                     </g>
-                    <text x={n.x + 11} y={n.y + 21} fontSize={11} fontWeight={700} fill="var(--text)">
-                      {t.name.length > 16 ? `${t.name.slice(0, 15)}…` : t.name}
-                    </text>
-                    <text x={n.x + 11} y={n.y + 38} fontSize={9.5} fill="var(--faint)">
+                    {lines.map((line, li) => (
+                      <text
+                        key={li}
+                        x={n.x + 13}
+                        y={n.y + (lines.length > 1 ? 16 + li * 12 : 22)}
+                        fontSize={lines.length > 1 ? 11 : 11.5}
+                        fontWeight={700}
+                        fill="var(--text)"
+                      >
+                        {line}
+                      </text>
+                    ))}
+                    <text x={n.x + 13} y={n.y + (lines.length > 1 ? 43 : 39)} fontSize={10} fill="var(--text-dim)">
                       {solved}/{counts[n.id] ?? 0} solved
                     </text>
                     {gate.length > 0 && m < 0.3 && (
-                      <g transform={`translate(${n.x + NODE_W - 20}, ${n.y + 11})`}>
-                        <circle cx={5} cy={5} r={8} fill="var(--panel-2)" />
-                        <text x={5} y={8.5} fontSize={9} textAnchor="middle" fill="var(--faint)">
-                          ⚿
-                        </text>
+                      <g transform={`translate(${n.x + NODE_W - 22}, ${n.y + 8})`} aria-label="Prerequisites not ready">
+                        <circle cx={7} cy={7} r={9} fill="var(--panel-2)" />
+                        <path d="M4.2 6.6 V5.2 a2.8 2.8 0 0 1 5.6 0 V6.6" fill="none" stroke="var(--text-dim)" strokeWidth={1.3} />
+                        <rect x={3.2} y={6.4} width={7.6} height={5.4} rx={1.2} fill="var(--text-dim)" />
                       </g>
                     )}
-                    {m >= 0.7 && (
-                      <circle cx={n.x + NODE_W - 13} cy={n.y + 14} r={5} fill="var(--easy)" />
-                    )}
+                    {m >= 0.7 && <circle cx={n.x + NODE_W - 13} cy={n.y + 15} r={5} fill="var(--easy)" />}
                   </a>
                 </motion.g>
               );
@@ -318,7 +348,7 @@ export default function RoadmapPage() {
       {/* linear view, which is also the mobile-friendly one */}
       <section>
         <SectionTitle icon="ListOrdered" title="The same path as a checklist" sub="Ordered by prerequisite depth, then by how often the topic shows up in interviews." />
-        <div className="panel divide-y divide-[var(--line-soft)]">
+        <div className="panel divide-y divide-[var(--border-soft)]">
           {layoutData.nodes.map((n) => {
             const t = TOPIC_MAP[n.id];
             const m = mastery[n.id];
@@ -327,7 +357,7 @@ export default function RoadmapPage() {
             return (
               <Link key={n.id} href={`/learn/${n.id}`} className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-panel-2/50">
                 <span className="w-5 text-center font-mono text-[10px] text-faint">{n.layer + 1}</span>
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg" style={{ background: `${t.color}1a`, color: t.color }}>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg" style={{ background: tint(t.color, 12), color: ink(t.color, 85) }}>
                   <Icon name={t.icon} size={15} />
                 </span>
                 <span className="min-w-0 flex-1">

@@ -194,15 +194,15 @@ export default function ComplexityPage() {
             {/* horizontal gridlines every 3 decades of operations */}
             {[0, 3, 6, 9, 12, 15, 18].map((l) => (
               <g key={l}>
-                <line x1={PAD.l} x2={W - PAD.r} y1={y(10 ** l)} y2={y(10 ** l)} stroke="var(--line-soft)" strokeWidth={1} />
-                <text x={PAD.l - 6} y={y(10 ** l) + 3} fontSize={8.5} textAnchor="end" fill="var(--faint)">
+                <line x1={PAD.l} x2={W - PAD.r} y1={y(10 ** l)} y2={y(10 ** l)} stroke="var(--border-soft)" strokeWidth={1} />
+                <text x={PAD.l - 6} y={y(10 ** l) + 3} fontSize={8.5} textAnchor="end" fill="var(--text-faint)">
                   10^{l}
                 </text>
               </g>
             ))}
             {/* x ticks */}
             {[0, 2, 4, 6, 8, 9].map((e) => (
-              <text key={e} x={x(e)} y={H - 8} fontSize={8.5} textAnchor="middle" fill="var(--faint)">
+              <text key={e} x={x(e)} y={H - 8} fontSize={8.5} textAnchor="middle" fill="var(--text-faint)">
                 10^{e}
               </text>
             ))}
