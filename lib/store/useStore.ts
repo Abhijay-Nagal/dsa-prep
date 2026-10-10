@@ -16,8 +16,11 @@ import { DEFAULT_PALETTE } from "@/lib/data/palettes";
 import { lcKey, parseLcList, problemLcKeys, type LcImportReport } from "@/lib/data/lc";
 
 export interface Settings {
-  theme: "dark" | "light";
-  /** Palette id from lib/data/palettes.ts. Applied as data-palette on <html>. */
+  /**
+   * Theme id from lib/data/palettes.ts, applied as data-palette on <html>. Each
+   * theme carries its own light or dark mode, so there is no separate setting;
+   * ids from before the redesign are mapped by resolvePalette.
+   */
   palette: string;
   targetCompany?: string;
   activeSheet: string;
@@ -125,7 +128,6 @@ const emptyProgress = (): ProblemProgress => ({
 });
 
 const defaultSettings: Settings = {
-  theme: "dark",
   palette: DEFAULT_PALETTE,
   activeSheet: "blind-75",
   activeTier: 75,
@@ -422,7 +424,7 @@ export const useStore = create<StoreState>()(
           get().pushToast({
             kind: "info",
             title: "Marked as solved on LeetCode",
-            body: "Similar problems you have not done yet are listed on the page.",
+            body: "Its page now lists similar problems you have not done yet.",
             icon: "ExternalLink",
           });
         }

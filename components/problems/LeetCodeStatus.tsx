@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
-import { Chip, DiffBadge, cx } from "@/components/ui/bits";
+import { Chip, DiffBadge } from "@/components/ui/bits";
 import { useHydrated } from "@/hooks/useNow";
 import { useStore, useLcSolved } from "@/lib/store/useStore";
 import { similarProblems } from "@/lib/engine/similar";
@@ -61,8 +61,8 @@ export function LeetCodeStatus({ problem }: { problem: Problem }) {
         </div>
         <button
           onClick={() => toggle(problem.id)}
-          className={cx("btn !py-1.5 !text-xs", on && "!text-white")}
-          style={on ? { background: LC, borderColor: "transparent" } : undefined}
+          className="btn !py-1.5 !text-xs"
+          style={on ? { background: LC, borderColor: "transparent", color: "#2a1700" } : undefined}
         >
           <Icon name={on ? "Check" : "Plus"} size={13} />
           {on ? "Marked" : "Mark done on LeetCode"}

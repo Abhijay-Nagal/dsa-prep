@@ -14,7 +14,7 @@ import {
   RefreshCw, Repeat, Rewind, RotateCcw, Rocket, Search, Settings, Share2, ShieldCheck, Shuffle,
   Sigma, SkipBack, SkipForward, Skull, Sliders, Sparkle, Sparkles, Star, StickyNote, Sun, Sunrise,
   Swords, Target, TextSearch, Timer, TrendingUp, Triangle, Trophy, Trash2, Type, Undo2, Unlock,
-  Upload, User, Wand2, X, Zap, Rows3,
+  Upload, User, Wand2, X, Zap, Rows3, NotebookText, Palette, Smartphone, Monitor, Share, SquarePlus, HardDrive,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -32,7 +32,7 @@ const MAP: Record<string, LucideIcon> = {
   RefreshCw, Repeat, Rewind, RotateCcw, Rocket, Search, Settings, Share2, ShieldCheck, Shuffle,
   Sigma, SkipBack, SkipForward, Skull, Sliders, Sparkle, Sparkles, Star, StickyNote, Sun, Sunrise,
   Swords, Target, TextSearch, Timer, TrendingUp, Triangle, Trophy, Trash2, Type, Undo2, Unlock,
-  Upload, User, Wand2, X, Zap, Rows3,
+  Upload, User, Wand2, X, Zap, Rows3, NotebookText, Palette, Smartphone, Monitor, Share, SquarePlus, HardDrive,
 };
 
 export function Icon({

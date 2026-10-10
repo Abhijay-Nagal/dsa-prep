@@ -3,149 +3,326 @@
 /* ============================================================
    DSA Prep — design tokens
 
-   Colour comes from a *palette*, selected with `data-palette` on <html>.
-   A palette sets its own background family as well as its accents, so
-   switching one changes the whole mood rather than just recolouring buttons.
+   Colour comes from a *theme*, selected with `data-palette` on <html>. Each
+   theme is a whole look rather than an accent swap: a dark sidebar (--side-*),
+   a content surface, an accent family, and the colours of the landscape drawn
+   in the dashboard hero (--sky-*, --hill-*, ...). `data-theme` carries the
+   mode of the theme (light or dark) so native controls follow it.
 
-   Nebula lives directly in `:root` so it is the no-JS default and the server
-   HTML is already correct. Every other palette overrides it below.
+   Amber Sunset lives directly in `:root` so it is the no-JS default and the
+   server HTML is already correct. Every other theme overrides it below, and
+   lib/data/palettes.ts holds the preview swatches, kept in sync by hand.
 
-   Nothing hardcodes a brand colour: glows, selection, gradients and the pulse
-   ring are all derived from `--accent` with color-mix, which is what makes a
-   palette apply everywhere instead of in half the UI.
+   Nothing hardcodes a brand colour: glows, selection, gradients, the body
+   washes and the pulse ring are all derived from `--accent` with color-mix,
+   which is what makes a theme apply everywhere instead of in half the UI.
 
    Difficulty colours (--easy / --medium / --hard) stay constant across every
-   palette on purpose. They carry meaning, so they must not shift under you.
+   theme on purpose. They carry meaning, so they must not shift under you.
    ============================================================ */
-:root {
-  /* Nebula — deep navy, azure into violet into pink */
-  --bg: #060a16;
-  --bg-elev: #0b1124;
-  --panel: #0e1428;
-  --panel-2: #141c36;
-  --border: #212c4e;
-  --border-soft: #1a2340;
-  --text: #e9eefb;
-  --text-dim: #9aa8c8;
-  --text-faint: #667596;
+/* `[data-preview]` lets an element render in a theme other than the page's:
+   the theme cards in Profile are live miniatures built this way. */
+:root,
+[data-preview] {
+  /* Amber Sunset — peach and burnt orange, slate sidebar */
+  color-scheme: light;
+  --bg: #fbf3ea;
+  --bg-elev: #fffaf4;
+  --panel: #fffaf5;
+  --panel-2: #f6e9dc;
+  --border: #ecdccb;
+  --border-soft: #f2e5d7;
+  --text: #2b1d14;
+  --text-dim: #6e5848;
+  --text-faint: #9c8776;
+  --accent: #d9661f;
+  --accent-2: #b9501a;
+  --accent-3: #e09a2f;
+  --on-accent: #ffffff;
 
-  --accent: #2b8aff;
-  --accent-2: #8b5cf6;
-  --accent-3: #f472b6;
+  --side-bg: #1f2433;
+  --side-panel: #283044;
+  --side-hover: #2c3549;
+  --side-border: #343e55;
+  --side-text: #f3ece4;
+  --side-dim: #b7b4ba;
+  --side-faint: #858899;
+  --side-active-bg: #f5c491;
+  --side-active-text: #2b1d14;
+  --side-hill: #2a3246;
 
-  /* semantic, identical in every palette */
+  --sky-top: #f7d7ae;
+  --sky-bottom: #f3a575;
+  --sun: #ffe6b0;
+  --hill-far: #e8ab8c;
+  --hill-mid: #c98670;
+  --hill-near: #8f5d4e;
+  --tree: #4b3530;
+  --water: #f5c8a2;
+  --bloom: #f3a7bb;
+
+  /* semantic, identical in every theme */
   --easy: #2fd48f;
   --medium: #ffb020;
   --hard: #ff5f6d;
   --gold: #ffcc4d;
   --streak: #ff8a3d;
 
+  /* mode-dependent */
+  --wash: 7%;
+  --panel-alpha: 94%;
+  --shadow-lg: 0 20px 50px -22px color-mix(in srgb, var(--text) 30%, transparent);
+  --shadow-card: 0 1px 2px color-mix(in srgb, var(--text) 5%, transparent),
+    0 10px 28px -18px color-mix(in srgb, var(--text) 22%, transparent);
+
   /* derived — these follow whatever --accent currently is */
-  --accent-soft: color-mix(in srgb, var(--accent) 15%, transparent);
-  --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.75);
-  --shadow-glow: 0 0 44px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 13%, transparent);
+  --shadow-glow: 0 0 40px -14px color-mix(in srgb, var(--accent) 40%, transparent);
   --radius: 16px;
 }
 
-/* ---------- alternative palettes ---------- */
+/* ---------- the other light themes ---------- */
 
-:root[data-palette="orchid"] {
-  /* deep plum, magenta into violet into sky */
-  --bg: #0c0617;
-  --bg-elev: #140a24;
-  --panel: #170d29;
-  --panel-2: #1f1238;
-  --border: #32204f;
-  --border-soft: #281a43;
-  --text: #f2e9fb;
-  --text-dim: #b39ccb;
-  --text-faint: #7d6795;
-  --accent: #c026d3;
-  --accent-2: #7c3aed;
-  --accent-3: #38bdf8;
+:root[data-palette="lavender-dusk"],
+[data-preview="lavender-dusk"] {
+  --bg: #f3effb;
+  --bg-elev: #fdfbff;
+  --panel: #fdfbff;
+  --panel-2: #ece5f8;
+  --border: #e0d6f1;
+  --border-soft: #e9e2f6;
+  --text: #231a3a;
+  --text-dim: #5d5276;
+  --text-faint: #8e84a6;
+  --accent: #7b4fe0;
+  --accent-2: #6237c8;
+  --accent-3: #d9729f;
+  --side-bg: #2a2145;
+  --side-panel: #352a56;
+  --side-hover: #3a2f5e;
+  --side-border: #45396c;
+  --side-text: #f1ecfb;
+  --side-dim: #bdb4d6;
+  --side-faint: #8d84aa;
+  --side-active-bg: #d9c8f8;
+  --side-active-text: #2a2145;
+  --side-hill: #342a55;
+  --sky-top: #c9b8ef;
+  --sky-bottom: #f6c3bd;
+  --sun: #fde3c2;
+  --hill-far: #b8a5dd;
+  --hill-mid: #9079c6;
+  --hill-near: #5f4a98;
+  --tree: #2e2350;
+  --water: #d6c7f2;
 }
 
-:root[data-palette="sunset"] {
-  /* deep aubergine, coral into hot pink into amber */
-  --bg: #140a12;
-  --bg-elev: #1d0f18;
-  --panel: #21121c;
-  --panel-2: #2b1726;
-  --border: #432236;
-  --border-soft: #371d2d;
-  --text: #fdeaea;
-  --text-dim: #cfa3ac;
-  --text-faint: #99707c;
-  --accent: #ff5c4d;
-  --accent-2: #ff2e88;
-  --accent-3: #ffc24b;
+:root[data-palette="mint-forest"],
+[data-preview="mint-forest"] {
+  --bg: #f1f4ea;
+  --bg-elev: #fcfdf8;
+  --panel: #fcfdf8;
+  --panel-2: #e7eedf;
+  --border: #d8e2cf;
+  --border-soft: #e3eadb;
+  --text: #1b2a20;
+  --text-dim: #4d6053;
+  --text-faint: #7f9182;
+  --accent: #2f6b45;
+  --accent-2: #255a39;
+  --accent-3: #b88f22;
+  --side-bg: #1d3a2a;
+  --side-panel: #254935;
+  --side-hover: #2a5039;
+  --side-border: #315843;
+  --side-text: #eef4ea;
+  --side-dim: #b5c8b8;
+  --side-faint: #879b8c;
+  --side-active-bg: #b7dcae;
+  --side-active-text: #1d3a2a;
+  --side-hill: #24452f;
+  --sky-top: #eef1dd;
+  --sky-bottom: #cfe0c6;
+  --sun: #f6ebbd;
+  --hill-far: #b3cbb6;
+  --hill-mid: #7fa58d;
+  --hill-near: #4a735b;
+  --tree: #22483a;
+  --water: #bdd5c9;
 }
 
-:root[data-palette="aurora"] {
-  /* deep teal ink, cyan into azure into violet */
-  --bg: #04120f;
-  --bg-elev: #071c18;
-  --panel: #09211c;
-  --panel-2: #0e2b25;
-  --border: #18433b;
-  --border-soft: #123630;
-  --text: #e4fbf4;
-  --text-dim: #93c4b9;
-  --text-faint: #648f85;
-  --accent: #0fb9b1;
-  --accent-2: #2b8aff;
-  --accent-3: #a78bfa;
+:root[data-palette="ocean-cliff"],
+[data-preview="ocean-cliff"] {
+  --bg: #eaf4f5;
+  --bg-elev: #f9fdfd;
+  --panel: #f9fdfd;
+  --panel-2: #ddedef;
+  --border: #cfe2e5;
+  --border-soft: #dbeaec;
+  --text: #0f2a33;
+  --text-dim: #4a6670;
+  --text-faint: #7a9199;
+  --accent: #17809a;
+  --accent-2: #12667b;
+  --accent-3: #e08a3c;
+  --side-bg: #0e3a46;
+  --side-panel: #144855;
+  --side-hover: #17505e;
+  --side-border: #1e5b69;
+  --side-text: #e9f6f8;
+  --side-dim: #a9c8cf;
+  --side-faint: #7a99a1;
+  --side-active-bg: #3cc1dc;
+  --side-active-text: #062b34;
+  --side-hill: #124452;
+  --sky-top: #8fcbdc;
+  --sky-bottom: #f6c591;
+  --sun: #fde4a6;
+  --hill-far: #a9c9cf;
+  --hill-mid: #c27a4d;
+  --hill-near: #6e4a39;
+  --tree: #2f4a3e;
+  --water: #5aa8bd;
 }
 
-:root[data-palette="indigo"] {
-  /* the original look, kept so nothing is lost */
-  --bg: #05070d;
-  --bg-elev: #0b0f1a;
-  --panel: #0e1320;
-  --panel-2: #131a2b;
-  --border: #1e2739;
-  --border-soft: #182032;
-  --text: #e8edf7;
-  --text-dim: #9aa8c2;
-  --text-faint: #64708a;
-  --accent: #6d5efc;
-  --accent-2: #b15cff;
-  --accent-3: #34d3ff;
+:root[data-palette="cherry-blossom"],
+[data-preview="cherry-blossom"] {
+  --bg: #fbf0f1;
+  --bg-elev: #fffafa;
+  --panel: #fffafa;
+  --panel-2: #f6e2e5;
+  --border: #efd3d8;
+  --border-soft: #f3dfe2;
+  --text: #3a1820;
+  --text-dim: #7a5058;
+  --text-faint: #a5838a;
+  --accent: #c4485a;
+  --accent-2: #a63447;
+  --accent-3: #d9708a;
+  --side-bg: #4d1c25;
+  --side-panel: #5c2630;
+  --side-hover: #632a35;
+  --side-border: #6e343f;
+  --side-text: #fcecee;
+  --side-dim: #ddb6bd;
+  --side-faint: #b08a92;
+  --side-active-bg: #f4b8c2;
+  --side-active-text: #4d1c25;
+  --side-hill: #5a2430;
+  --sky-top: #fadfe0;
+  --sky-bottom: #f5bcc2;
+  --sun: #fff0e4;
+  --hill-far: #dcaac4;
+  --hill-mid: #bd8daa;
+  --hill-near: #9b6a88;
+  --tree: #5a2a35;
+  --water: #f2cbd2;
+  --bloom: #f3a7bb;
 }
 
-:root[data-palette="slate"] {
-  /* low chroma and quiet, for long sessions */
-  --bg: #0a0e14;
-  --bg-elev: #101620;
-  --panel: #131a26;
-  --panel-2: #1a2331;
-  --border: #273345;
-  --border-soft: #1f2938;
-  --text: #e6ecf5;
-  --text-dim: #97a5ba;
-  --text-faint: #64728a;
+/* ---------- the dark themes ---------- */
+
+:root[data-palette="lantern-lake"],
+[data-preview="lantern-lake"] {
+  color-scheme: dark;
+  --bg: #0f2a30;
+  --bg-elev: #133239;
+  --panel: #15353c;
+  --panel-2: #1b4048;
+  --border: #27525b;
+  --border-soft: #1f4750;
+  --text: #f4ecd8;
+  --text-dim: #bcc6bd;
+  --text-faint: #829793;
+  --accent: #f2b63a;
+  --accent-2: #e39b25;
+  --accent-3: #6cc3ae;
+  --on-accent: #1d1606;
+  --side-bg: #0a1d22;
+  --side-panel: #12292f;
+  --side-hover: #15313a;
+  --side-border: #1d3d45;
+  --side-text: #f4ecd8;
+  --side-dim: #abb8b2;
+  --side-faint: #728883;
+  --side-active-bg: #f2b63a;
+  --side-active-text: #1d1606;
+  --side-hill: #10272d;
+  --sky-top: #12333b;
+  --sky-bottom: #5d6a4e;
+  --sun: #f7d27c;
+  --hill-far: #2f5157;
+  --hill-mid: #1f3e44;
+  --hill-near: #12292e;
+  --tree: #0b1c20;
+  --water: #24484f;
+  --wash: 13%;
+  --panel-alpha: 88%;
+  --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.7);
+  --shadow-card: 0 10px 30px -20px rgba(0, 0, 0, 0.6);
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --shadow-glow: 0 0 44px -12px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+:root[data-palette="indigo-night"],
+[data-preview="indigo-night"] {
+  color-scheme: dark;
+  --bg: #0e1a36;
+  --bg-elev: #12204a;
+  --panel: #14244a;
+  --panel-2: #1a2d59;
+  --border: #283f72;
+  --border-soft: #203462;
+  --text: #e8eefc;
+  --text-dim: #a5b4d6;
+  --text-faint: #7182aa;
   --accent: #3b82f6;
-  --accent-2: #6366f1;
-  --accent-3: #06b6d4;
+  --accent-2: #2563eb;
+  --accent-3: #93c5fd;
+  --on-accent: #ffffff;
+  --side-bg: #09122a;
+  --side-panel: #101c3c;
+  --side-hover: #132146;
+  --side-border: #1a2a52;
+  --side-text: #e8eefc;
+  --side-dim: #a0afd2;
+  --side-faint: #6a7aa3;
+  --side-active-bg: #3b82f6;
+  --side-active-text: #ffffff;
+  --side-hill: #0f1a38;
+  --sky-top: #0b1838;
+  --sky-bottom: #2b4282;
+  --sun: #eef2ff;
+  --hill-far: #24386e;
+  --hill-mid: #182a55;
+  --hill-near: #0f1d3e;
+  --tree: #08112a;
+  --water: #1d3163;
+  --wash: 14%;
+  --panel-alpha: 88%;
+  --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.75);
+  --shadow-card: 0 10px 30px -20px rgba(0, 0, 0, 0.65);
+  --accent-soft: color-mix(in srgb, var(--accent) 17%, transparent);
+  --shadow-glow: 0 0 44px -12px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
-/* ---------- light theme ----------
-   Must come after the palettes so its background family wins. Accents are left
-   alone, so the palette still shows through, and the page picks up a 4% wash of
-   the accent so light mode is themed rather than plain white. */
-:root[data-theme="light"] {
-  --bg: color-mix(in srgb, var(--accent) 4%, #f7f8fc);
-  --bg-elev: #ffffff;
-  --panel: #ffffff;
-  --panel-2: color-mix(in srgb, var(--accent) 5%, #f2f4f9);
-  --border: color-mix(in srgb, var(--accent) 12%, #e2e6ef);
-  --border-soft: color-mix(in srgb, var(--accent) 7%, #eaedf4);
-  --text: #0f1626;
-  --text-dim: #566078;
-  --text-faint: #8b95aa;
-  --accent-soft: color-mix(in srgb, var(--accent) 11%, transparent);
-  --shadow-lg: 0 20px 50px -22px rgba(20, 26, 48, 0.28);
-  --shadow-glow: 0 0 40px -14px color-mix(in srgb, var(--accent) 35%, transparent);
+/* ---------- the sidebar ----------
+   Every theme has a dark sidebar, whatever the content surface. Rather than
+   restyle each sidebar element, `.side` re-points the surface tokens at the
+   --side-* family, so the same utilities (text-dim, bg-panel-2, .panel) render
+   correctly inside it. */
+.side {
+  --text: var(--side-text);
+  --text-dim: var(--side-dim);
+  --text-faint: var(--side-faint);
+  --panel: var(--side-panel);
+  --panel-2: var(--side-hover);
+  --border: var(--side-border);
+  --border-soft: var(--side-border);
+  --panel-alpha: 100%;
+  --shadow-card: none;
+  background: var(--side-bg);
+  color: var(--text);
 }
 
 @theme inline {
@@ -169,6 +346,7 @@
   --radius-xl2: var(--radius);
   --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-mono-var), ui-monospace, "JetBrains Mono", "Fira Code", monospace;
+  --font-display: var(--font-display-var), Georgia, "Times New Roman", serif;
 }
 
 * { border-color: var(--border); }
@@ -179,9 +357,9 @@ html, body { height: 100%; }
    fixed` keeps them still while content scrolls, so they read as lighting. */
 body {
   background:
-    radial-gradient(1200px 700px at 12% -8%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
-    radial-gradient(900px 600px at 92% 4%, color-mix(in srgb, var(--accent-3) 12%, transparent), transparent 58%),
-    radial-gradient(800px 800px at 60% 110%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 60%),
+    radial-gradient(1200px 700px at 12% -8%, color-mix(in srgb, var(--accent) var(--wash), transparent), transparent 60%),
+    radial-gradient(900px 600px at 92% 4%, color-mix(in srgb, var(--accent-3) var(--wash), transparent), transparent 58%),
+    radial-gradient(800px 800px at 60% 110%, color-mix(in srgb, var(--accent-2) var(--wash), transparent), transparent 60%),
     var(--bg);
   background-attachment: fixed;
   color: var(--text);
@@ -191,7 +369,7 @@ body {
   transition: background-color .3s ease;
 }
 
-::selection { background: color-mix(in srgb, var(--accent) 38%, transparent); color: #fff; }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--text); }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -209,9 +387,10 @@ body {
    ============================================================ */
 @layer components {
   .panel {
-    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    background: color-mix(in srgb, var(--panel) var(--panel-alpha), transparent);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
     backdrop-filter: blur(14px);
   }
   .panel-hover {
@@ -243,7 +422,7 @@ body {
   .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
   .btn-primary {
     background: linear-gradient(100deg, var(--accent), var(--accent-2));
-    border-color: transparent; color: #fff;
+    border-color: transparent; color: var(--on-accent);
     box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--accent) 85%, transparent);
   }
   .btn-primary:hover { filter: brightness(1.09); }
@@ -265,6 +444,7 @@ body {
   .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .input::placeholder { color: var(--text-faint); }
   .hairline { border-bottom: 1px solid var(--border-soft); }
+  .on-accent { color: var(--on-accent); }
 }
 
 /* ============================================================

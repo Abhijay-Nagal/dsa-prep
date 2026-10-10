@@ -13,6 +13,7 @@ import { TOPIC_MAP, topicName } from "@/lib/data/topics";
 import { PATTERN_MAP } from "@/lib/data/patterns";
 import { COMPANY_MAP } from "@/lib/data/companies";
 import { SHEETS } from "@/lib/data/sheets";
+import { RefresherButton } from "@/components/problems/Refresher";
 
 /* ------------------------------ status control ----------------------------- */
 
@@ -69,6 +70,43 @@ export function StarButton({ id }: { id: string }) {
   );
 }
 
+/**
+ * "Done on LeetCode" toggle. Starts unselected; pressing it marks the problem as
+ * already beaten on LeetCode and fills it in LeetCode orange. This is the same
+ * mark the bulk importer writes, and deliberately separate from the sheet tick.
+ * The row is a size container, so the label shortens to "LC" in narrow rows
+ * (a side column, a phone) instead of squeezing the title.
+ */
+export function LcDoneButton({ id }: { id: string }) {
+  const hydrated = useHydrated();
+  const marked = useLcSolved(id);
+  const toggle = useStore((s) => s.toggleLcSolved);
+  const on = hydrated && marked;
+
+  return (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggle(id);
+      }}
+      aria-pressed={on}
+      title={on ? "Done on LeetCode. Click to unmark" : "Mark as done on LeetCode"}
+      className={cx(
+        "inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold transition-all active:scale-95",
+        on ? "border-transparent" : "border-line text-faint hover:text-text",
+      )}
+      style={on ? { background: LC_ORANGE, color: "#2a1700" } : undefined}
+    >
+      <Icon name={on ? "BadgeCheck" : "Circle"} size={11} />
+      <span className="hidden @3xl:inline">Done on LeetCode</span>
+      <span className="@3xl:hidden">LC</span>
+    </button>
+  );
+}
+
+const LC_ORANGE = "#ffa116";
+
 /* --------------------------------- one row -------------------------------- */
 
 export function ProblemRow({
@@ -84,7 +122,6 @@ export function ProblemRow({
 }) {
   const hydrated = useHydrated();
   const prog = useStore((s) => s.progress[p.id]);
-  const lcDone = useLcSolved(p.id);
   const solved = hydrated && prog?.status === "solved";
   const carried = sheetTier !== undefined && solved && p.tier < sheetTier;
   const topic = TOPIC_MAP[p.topic];
@@ -93,7 +130,7 @@ export function ProblemRow({
     <motion.div
       layout
       className={cx(
-        "group grid items-center gap-3 border-b border-line-soft px-3 py-2.5 transition-colors last:border-b-0 hover:bg-panel-2/60",
+        "group @container grid items-center gap-3 border-b border-line-soft px-3 py-2.5 transition-colors last:border-b-0 hover:bg-panel-2/60",
         compact
           ? "grid-cols-[auto_1fr_auto]"
           : "grid-cols-[auto_1fr_auto] md:grid-cols-[auto_minmax(0,1fr)_120px_92px_74px_auto]",
@@ -124,11 +161,6 @@ export function ProblemRow({
             </span>
           )}
           {p.premium && <Chip className="!text-[9px]">premium</Chip>}
-          {hydrated && lcDone && (
-            <Chip color="#ffa116" icon="BadgeCheck" className="!text-[9px]">
-              on LeetCode
-            </Chip>
-          )}
           {carried && (
             <Chip color="var(--easy)" icon="Check" className="!text-[9px]">
               done in {SHEETS.find((s) => s.tier === p.tier)?.short ?? p.tier}
@@ -175,6 +207,8 @@ export function ProblemRow({
       )}
 
       <div className="flex items-center gap-2">
+        <LcDoneButton id={p.id} />
+        <RefresherButton id={p.id} />
         <StarButton id={p.id} />
         {p.links.lcSlug && (
           <a

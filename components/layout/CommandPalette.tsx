@@ -14,7 +14,7 @@ import { NAV } from "./Shell";
 import { useStore } from "@/lib/store/useStore";
 import { PROBLEM_MAP } from "@/lib/data/problems";
 import { useHydrated } from "@/hooks/useNow";
-import { PALETTES } from "@/lib/data/palettes";
+import { PALETTES, nextPalette, resolvePalette } from "@/lib/data/palettes";
 
 interface Item {
   id: string;
@@ -60,7 +60,6 @@ export function CommandPalette() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const hydrated = useHydrated();
-  const theme = useStore((s) => s.settings.theme);
   const activePalette = useStore((s) => s.settings.palette);
   const setSetting = useStore((s) => s.setSetting);
   const recent = useStore((s) => s.recent);
@@ -102,10 +101,10 @@ export function CommandPalette() {
 
     const actions: { label: string; sub: string; icon: string; run: () => void }[] = [
       {
-        label: theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+        label: `Next theme: ${nextPalette(activePalette).name}`,
         sub: "Shortcut: t",
-        icon: theme === "dark" ? "Sun" : "MoonStar",
-        run: () => setSetting("theme", theme === "dark" ? "light" : "dark"),
+        icon: "Palette",
+        run: () => setSetting("palette", nextPalette(activePalette).id),
       },
       { label: "Focus timer", sub: "Shortcut: f", icon: "Timer", run: () => window.dispatchEvent(new CustomEvent("toggle-focus")) },
       { label: "Keyboard shortcuts", sub: "Shortcut: ?", icon: "Keyboard", run: () => window.dispatchEvent(new CustomEvent("open-shortcuts")) },
@@ -124,11 +123,11 @@ export function CommandPalette() {
       push(
         {
           id: `pal-${pal.id}`,
-          label: `Palette: ${pal.name}`,
-          sub: pal.id === activePalette ? "Current" : pal.blurb,
-          icon: "Sparkles",
+          label: `Theme: ${pal.name}`,
+          sub: pal.id === resolvePalette(activePalette).id ? "Current" : pal.blurb,
+          icon: "Palette",
           run: () => setSetting("palette", pal.id),
-          group: "Palette",
+          group: "Theme",
           badge: (
             <span className="flex gap-0.5">
               {pal.swatch.map((c) => (
@@ -137,7 +136,7 @@ export function CommandPalette() {
             </span>
           ),
         },
-        `palette ${pal.name} theme colour`,
+        `theme ${pal.name} palette colour ${pal.mode}`,
       );
     }
 
@@ -184,7 +183,7 @@ export function CommandPalette() {
       ];
     }
     return out.sort((a, b) => b.score - a.score).slice(0, 24);
-  }, [q, theme, activePalette, setSetting, router, hydrated, recent]);
+  }, [q, activePalette, setSetting, router, hydrated, recent]);
 
   const go = (item?: Item) => {
     const target = item ?? items[sel];

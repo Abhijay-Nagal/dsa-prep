@@ -70,7 +70,7 @@ export function DailyCard() {
           </div>
 
           <Link href={`/problems/${problem.id}`} className="mt-2 block">
-            <h3 className="flex flex-wrap items-center gap-2 text-lg font-bold tracking-tight hover:text-accent">
+            <h3 className="flex flex-wrap items-center gap-2 font-display text-xl font-bold tracking-tight hover:text-accent">
               {problem.title}
               <DiffBadge d={problem.difficulty} small />
             </h3>

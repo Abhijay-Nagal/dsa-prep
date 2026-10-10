@@ -77,7 +77,7 @@ export function ToastHost() {
                   <Icon name={t.icon ?? meta.icon} size={17} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-bold" style={{ color: meta.color }}>
+                  <div className="text-sm font-bold">
                     {t.title}
                   </div>
                   {t.body && <div className="mt-0.5 text-xs leading-snug text-dim">{t.body}</div>}

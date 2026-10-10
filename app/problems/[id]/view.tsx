@@ -10,6 +10,7 @@ import { CodePad } from "@/components/problems/CodePad";
 import { PageNav } from "@/components/ui/PageNav";
 import { InterviewMode } from "@/components/problems/InterviewMode";
 import { LeetCodeStatus } from "@/components/problems/LeetCodeStatus";
+import { RefresherPanel } from "@/components/problems/Refresher";
 import { ProblemRow, StarButton } from "@/components/problems/ProblemList";
 import { PROBLEM_MAP, PROBLEMS, byPattern } from "@/lib/data/problems";
 import { PATTERN_MAP } from "@/lib/data/patterns";
@@ -150,6 +151,7 @@ export default function ProblemDetail() {
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
           <LeetCodeStatus problem={problem} />
+          <RefresherPanel problem={problem} />
           <InterviewMode problem={problem} />
           <HintLadder problem={problem} />
           <ApproachPanel problem={problem} />

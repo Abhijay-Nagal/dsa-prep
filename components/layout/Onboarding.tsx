@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import confetti from "canvas-confetti";
 import { Icon } from "@/components/ui/Icon";
-import { cx } from "@/components/ui/bits";
+import { cx, tint } from "@/components/ui/bits";
 import { useHydrated } from "@/hooks/useNow";
 import { useStore } from "@/lib/store/useStore";
 import { COMPANIES } from "@/lib/data/companies";
@@ -116,7 +116,7 @@ export function Onboarding() {
       >
         <div className="hairline flex items-center gap-2 px-5 py-3">
           <div className="grid h-8 w-8 place-items-center rounded-xl grad-bg">
-            <Icon name="Braces" size={16} className="text-white" />
+            <Icon name="Braces" size={16} className="on-accent" />
           </div>
           <div className="flex flex-1 items-center gap-1.5">
             {STEPS.map((s, i) => (
@@ -149,7 +149,7 @@ export function Onboarding() {
                     animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <Icon name="Braces" size={30} className="text-white" />
+                    <Icon name="Braces" size={30} className="on-accent" />
                   </motion.div>
                   <h2 className="text-2xl font-extrabold tracking-tight">
                     Welcome to <span className="grad-text">DSA Prep</span>
@@ -444,7 +444,7 @@ function Choice({
 function Summary({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
   return (
     <div className="panel flex items-center gap-2.5 p-3">
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg" style={{ background: `${color}1f`, color }}>
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg" style={{ background: tint(color, 12), color }}>
         <Icon name={icon} size={15} />
       </span>
       <span className="min-w-0">

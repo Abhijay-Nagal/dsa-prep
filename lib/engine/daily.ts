@@ -144,3 +144,21 @@ export const TIPS: string[] = [
 ];
 
 export const tipOfDay = (dateKey: string): string => TIPS[pick(`${dateKey}|tip`, TIPS.length)];
+
+/** Short lines for the quote card on the dashboard, one per day. */
+export const QUOTES: string[] = [
+  "A better you is built today.",
+  "Small consistent steps lead to big results.",
+  "Discipline today, opportunity tomorrow.",
+  "Focus today, freedom tomorrow.",
+  "Better problems make a brighter you.",
+  "One more problem than yesterday.",
+  "Patterns, not memorised answers.",
+  "Slow is smooth, and smooth is fast.",
+  "The hard ones are the ones that count.",
+  "Show up. Solve one. Repeat.",
+  "Understand it once, recall it forever.",
+  "Every bug you fix is one you will not write again.",
+];
+
+export const quoteOfDay = (dateKey: string): string => QUOTES[pick(`${dateKey}|quote`, QUOTES.length)];

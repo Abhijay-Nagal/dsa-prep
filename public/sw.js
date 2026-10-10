@@ -1,9 +1,9 @@
 /* DSA Prep service worker: app shell precache + runtime caching. */
-const VERSION = "dsa-prep-v1";
+const VERSION = "dsa-prep-v2";
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 
-const PRECACHE = ["/", "/manifest.webmanifest", "/icon.svg"];
+const PRECACHE = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

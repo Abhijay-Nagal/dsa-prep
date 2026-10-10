@@ -1,65 +1,119 @@
 /**
- * The palette catalogue. The colours here are only for previews — the real
+ * The theme catalogue. The colours here are only for previews — the real
  * values live in `app/globals.css` under `:root[data-palette="..."]`, so the
  * page is correctly themed before any JavaScript runs. Keep the two in sync.
+ *
+ * Each theme is a whole look: a dark sidebar, a content surface, an accent and
+ * a landscape for the dashboard hero. `mode` says whether the content surface
+ * is light or dark, and is written to `data-theme` so native controls and
+ * scrollbars follow it.
  */
+export type SceneMotif = "pines" | "pagoda" | "cliffs" | "blossom" | "night";
+
 export interface Palette {
   id: string;
   name: string;
   blurb: string;
-  /** Preview swatch: accent, accent-2, accent-3. */
+  mode: "light" | "dark";
+  motif: SceneMotif;
+  /** Preview swatch: sidebar, accent, content surface. */
   swatch: [string, string, string];
-  /** Preview background, matching that palette's --bg. */
+  /** Preview background, matching that theme's --bg. */
   bg: string;
 }
 
 export const PALETTES: Palette[] = [
   {
-    id: "nebula",
-    name: "Nebula",
-    blurb: "Azure into violet on deep navy. The default.",
-    swatch: ["#2b8aff", "#8b5cf6", "#f472b6"],
-    bg: "#060a16",
+    id: "amber-sunset",
+    name: "Amber Sunset",
+    blurb: "Warm peach and burnt orange under a slate sidebar. The default.",
+    mode: "light",
+    motif: "pines",
+    swatch: ["#1f2433", "#d9661f", "#fbf3ea"],
+    bg: "#fbf3ea",
   },
   {
-    id: "orchid",
-    name: "Orchid",
-    blurb: "Magenta into violet on deep plum. The loudest one.",
-    swatch: ["#c026d3", "#7c3aed", "#38bdf8"],
-    bg: "#0c0617",
+    id: "lavender-dusk",
+    name: "Lavender Dusk",
+    blurb: "Soft violet with a plum sidebar. Calm and modern.",
+    mode: "light",
+    motif: "pines",
+    swatch: ["#2a2145", "#7b4fe0", "#f3effb"],
+    bg: "#f3effb",
   },
   {
-    id: "sunset",
-    name: "Sunset",
-    blurb: "Coral into hot pink on aubergine. Warm and high energy.",
-    swatch: ["#ff5c4d", "#ff2e88", "#ffc24b"],
-    bg: "#140a12",
+    id: "mint-forest",
+    name: "Mint Forest",
+    blurb: "Fresh greens on cream with a deep forest sidebar.",
+    mode: "light",
+    motif: "pines",
+    swatch: ["#1d3a2a", "#2f6b45", "#f1f4ea"],
+    bg: "#f1f4ea",
   },
   {
-    id: "aurora",
-    name: "Aurora",
-    blurb: "Cyan into azure on teal ink. Cool and calm.",
-    swatch: ["#0fb9b1", "#2b8aff", "#a78bfa"],
-    bg: "#04120f",
+    id: "ocean-cliff",
+    name: "Ocean Cliff",
+    blurb: "Sea teal and sunset gold with a deep marine sidebar.",
+    mode: "light",
+    motif: "cliffs",
+    swatch: ["#0e3a46", "#17809a", "#eaf4f5"],
+    bg: "#eaf4f5",
   },
   {
-    id: "indigo",
-    name: "Indigo",
-    blurb: "The original look, if you preferred it.",
-    swatch: ["#6d5efc", "#b15cff", "#34d3ff"],
-    bg: "#05070d",
+    id: "cherry-blossom",
+    name: "Cherry Blossom",
+    blurb: "Blush pink and rose with a maroon sidebar.",
+    mode: "light",
+    motif: "blossom",
+    swatch: ["#4d1c25", "#c4485a", "#fbf0f1"],
+    bg: "#fbf0f1",
   },
   {
-    id: "slate",
-    name: "Slate",
-    blurb: "Low chroma and quiet, for very long sessions.",
-    swatch: ["#3b82f6", "#6366f1", "#06b6d4"],
-    bg: "#0a0e14",
+    id: "lantern-lake",
+    name: "Lantern Lake",
+    blurb: "Gold lantern light over a dark teal lake. Dark and warm.",
+    mode: "dark",
+    motif: "pagoda",
+    swatch: ["#0a1d22", "#f2b63a", "#0f2a30"],
+    bg: "#0f2a30",
+  },
+  {
+    id: "indigo-night",
+    name: "Indigo Night",
+    blurb: "Moonlit navy and electric blue. Dark and focused.",
+    mode: "dark",
+    motif: "night",
+    swatch: ["#09122a", "#3b82f6", "#0e1a36"],
+    bg: "#0e1a36",
   },
 ];
 
 export const PALETTE_MAP: Record<string, Palette> = Object.fromEntries(PALETTES.map((p) => [p.id, p]));
 
-export const DEFAULT_PALETTE = "nebula";
+export const DEFAULT_PALETTE = "amber-sunset";
 
-export const paletteName = (id: string) => PALETTE_MAP[id]?.name ?? "Nebula";
+/**
+ * Palette ids from before the theme redesign, mapped to their closest new
+ * theme so a saved choice still means something. Also read by the pre-paint
+ * script in app/layout.tsx.
+ */
+export const LEGACY_PALETTES: Record<string, string> = {
+  nebula: "indigo-night",
+  indigo: "indigo-night",
+  slate: "indigo-night",
+  orchid: "lavender-dusk",
+  sunset: "amber-sunset",
+  aurora: "ocean-cliff",
+};
+
+/** Any stored id, old or unknown, resolved to a real theme. */
+export const resolvePalette = (id: string | undefined): Palette =>
+  PALETTE_MAP[id ?? ""] ?? PALETTE_MAP[LEGACY_PALETTES[id ?? ""] ?? ""] ?? PALETTE_MAP[DEFAULT_PALETTE];
+
+export const paletteName = (id: string) => resolvePalette(id).name;
+
+/** The theme after this one, for the `t` shortcut. */
+export const nextPalette = (id: string): Palette => {
+  const i = PALETTES.findIndex((p) => p.id === resolvePalette(id).id);
+  return PALETTES[(i + 1) % PALETTES.length];
+};

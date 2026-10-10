@@ -6,7 +6,7 @@ persisted to `localStorage` under `dsa-prep-v1`.
 ## Commands
 
 ```bash
-npm run dev            # dev server
+npm run dev            # dev server, pinned to port 3000 (progress is per origin, so it must not drift to 3001)
 npm run build          # prerenders every dynamic route
 npx tsc --noEmit       # typecheck
 npx eslint .           # must stay at zero errors and zero warnings
@@ -29,13 +29,25 @@ all 580+ routes statically prerendered, which is what makes the offline cache wo
 **Problem ids are URLs.** An id must match its title. There is no redirect layer, so renaming an id breaks
 saved progress for that problem.
 
-**Colour comes from a palette, not a single accent.** `data-palette` on `<html>` selects a block in
-`app/globals.css`; Nebula lives in `:root` so it is the no-JS default and the server HTML is already right. Two places
-set the attribute: the pre-paint script in `app/layout.tsx` and the effect in `Shell`. `lib/data/palettes.ts` holds
-preview swatches only, so its colours must be kept in sync with the CSS by hand. Nothing hardcodes a brand colour:
-glows, selection, the body washes, the primary button shadow and the pulse ring all derive from `--accent` with
-`color-mix`, which is what makes a palette apply everywhere rather than in half the UI. `--easy`, `--medium` and
-`--hard` are deliberately identical in every palette, because they carry meaning.
+**Colour comes from a theme, not a single accent.** `data-palette` on `<html>` selects one of seven blocks in
+`app/globals.css`; Amber Sunset lives in `:root` so it is the no-JS default and the server HTML is already right. A theme
+is a whole look: surface tokens, accents, a `--side-*` family for the always-dark sidebar, and `--sky-*`/`--hill-*`
+colours that `components/ui/Scene.tsx` paints the dashboard landscape with. Each theme carries its own mode, written to
+`data-theme`; there is no separate light/dark setting. Two places set the attributes: the pre-paint script in
+`app/layout.tsx` (its id/mode and legacy tables are generated from `lib/data/palettes.ts`) and the effect in `Shell`.
+`lib/data/palettes.ts` holds preview swatches only, kept in sync with the CSS by hand. Old palette ids are mapped by
+`resolvePalette`, so read the setting through it. Every theme block also matches `[data-preview="id"]`, which is how
+the Profile theme cards render in their own colours. `.side` re-points the surface tokens at the sidebar family, so
+ordinary utilities work inside the sidebar. Nothing hardcodes a brand colour: glows, selection, the body washes, the
+primary button and the pulse ring derive from `--accent` with `color-mix`, and text on an accent fill uses
+`--on-accent` (dark on Lantern Lake's gold). `--easy`, `--medium` and `--hard` are deliberately identical in every
+theme, because they carry meaning.
+
+**Never append hex alpha to a colour that might be a variable.** `${color}1c` is invalid CSS when `color` is
+`var(--easy)`, and the browser silently drops the declaration. Use `tint(color, pct)` from `components/ui/bits.tsx`.
+
+**Modals are portalled to `<body>`.** `.panel` uses `backdrop-filter`, which makes it the containing block for
+fixed-position descendants, so a modal opened from a row inside a panel would be trapped in it.
 
 **LeetCode progress is keyed by normalised title, not by problem id.** `lib/data/lc.ts` owns `lcKey`, which collapses a
 title, a LeetCode slug and a full problem URL onto one key, so a pasted list parses in any of those shapes. Keys for
@@ -75,6 +87,11 @@ company codes, `f` frequency 1-5, `m` must-do, `e` minutes, `a` one line approac
 `h` bespoke hints, `v` variant ids, `top` a topic override when the entry sits in another topic's file.
 Code tables are in `lib/data/problems/_build.ts`.
 
+Every problem also needs a refresher note in the matching file of `lib/data/notes/`: `s` two to four steps, `w` the
+usual mistake, `k` the key idea (only when the problem has no `a`), `T`/`S` (only when the problem has none).
+`refresherFor` merges the two, with the problem's own approach and complexity winning. The self-check below asserts
+every problem resolves to a complete refresher and no note points at a missing id.
+
 Tier counts are deliberate and cumulative: 75, 150, 250, 450, then the Vault. Adding to a lower tier changes
 what every larger sheet contains, so keep the counts balanced.
 
@@ -90,9 +107,10 @@ tokens and `Number("")` is 0, which silently injects phantom zeroes.
 
 ## The global layer
 
-`app/layout.tsx` mounts five always-on clients below `Shell`: `ToastHost`, `CommandPalette`, `Shortcuts`, `FocusTimer`
-and `Onboarding`. They talk to each other with window events rather than shared state: `open-palette`,
-`open-shortcuts` and `toggle-focus`. `Onboarding` renders only while `!onboarded`, and `FocusTimer` renders only once
+`app/layout.tsx` mounts six always-on clients below `Shell`: `ToastHost`, `CommandPalette`, `Shortcuts`, `FocusTimer`,
+`Onboarding` and `PwaBoot`. They talk to each other with window events rather than shared state: `open-palette`,
+`open-shortcuts`, `toggle-focus` and `open-install` (the Profile install button; `PwaBoot` runs the browser's prompt if
+it kept one, and shows per-platform steps otherwise). `Onboarding` renders only while `!onboarded`, and `FocusTimer` renders only once
 `onboarded` is true, so the wizard is never competing with the dock.
 
 `Shortcuts` owns every global key. It bails out when the event target is an input, textarea, select or contenteditable,

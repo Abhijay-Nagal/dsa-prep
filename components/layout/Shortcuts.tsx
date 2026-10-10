@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { cx } from "@/components/ui/bits";
 import { useStore } from "@/lib/store/useStore";
 import { play } from "@/lib/sound";
+import { nextPalette } from "@/lib/data/palettes";
 
 /**
  * Global keyboard layer. Two-key "g then x" jumps follow the convention used by
@@ -33,7 +34,7 @@ const ACTIONS: { keys: string; label: string }[] = [
   { keys: "Ctrl K", label: "Search everything" },
   { keys: "/", label: "Search everything" },
   { keys: "f", label: "Focus timer" },
-  { keys: "t", label: "Light or dark theme" },
+  { keys: "t", label: "Next theme" },
   { keys: "?", label: "This cheat sheet" },
   { keys: "Esc", label: "Close anything open" },
 ];
@@ -56,7 +57,7 @@ export function Shortcuts() {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const router = useRouter();
-  const theme = useStore((s) => s.settings.theme);
+  const palette = useStore((s) => s.settings.palette);
   const setSetting = useStore((s) => s.setSetting);
   const sound = useStore((s) => s.settings.sound);
   const armed = useRef<number | null>(null);
@@ -113,7 +114,7 @@ export function Shortcuts() {
       }
       if (k === "t") {
         e.preventDefault();
-        setSetting("theme", theme === "dark" ? "light" : "dark");
+        setSetting("palette", nextPalette(palette).id);
       }
     };
 
@@ -125,7 +126,7 @@ export function Shortcuts() {
       window.removeEventListener("open-shortcuts", show);
       if (armed.current) window.clearTimeout(armed.current);
     };
-  }, [router, setSetting, theme, sound]);
+  }, [router, setSetting, palette, sound]);
 
   return (
     <>

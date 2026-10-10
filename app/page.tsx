@@ -7,7 +7,11 @@ import { Icon } from "@/components/ui/Icon";
 import { Bar, Chip, CountUp, DiffBadge, Empty, SectionTitle, Stat, cx } from "@/components/ui/bits";
 import { LevelCard, MasteryRadar, RecommendationCard, SkillGapList, StreakCard } from "@/components/dashboard/widgets";
 import { DailyCard, WeeklySpotlight } from "@/components/dashboard/daily";
-import { useNow } from "@/hooks/useNow";
+import { useHydrated, useNow } from "@/hooks/useNow";
+import { Scene } from "@/components/ui/Scene";
+import { resolvePalette, type SceneMotif } from "@/lib/data/palettes";
+import { quoteOfDay } from "@/lib/engine/daily";
+import { todayKey } from "@/lib/engine/xp";
 import { useOrigin } from "@/components/ui/PageNav";
 import { ProblemRow } from "@/components/problems/ProblemList";
 import { useDailyPlan, useDueReviews, useRecommendations, useSheetStats, useSnapshot, useTotals, useWeakSkills } from "@/hooks/useLearner";
@@ -31,6 +35,24 @@ function greeting(now: number) {
   return "Late session";
 }
 
+/** The quote of the day over a strip of the theme's landscape. */
+function QuoteCard({ motif, now }: { motif: SceneMotif; now: number }) {
+  const quote = now ? quoteOfDay(todayKey(new Date(now))) : "";
+  return (
+    <div className="panel relative h-[150px] overflow-hidden">
+      <Scene motif={motif} className="absolute inset-0 h-full w-full" />
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(160deg, color-mix(in srgb, var(--bg-elev) 82%, transparent) 25%, transparent 75%)" }}
+      />
+      <div className="relative p-4">
+        <p className="font-display text-lg font-bold leading-snug">{quote ? `“${quote}”` : " "}</p>
+        <span className="mt-2 block h-1 w-8 rounded-full" style={{ background: "var(--accent)" }} />
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const snap = useSnapshot();
   const plan = useDailyPlan();
@@ -45,6 +67,9 @@ export default function Dashboard() {
   const setSetting = useStore((s) => s.setSetting);
   const dailyMinutes = useStore((s) => s.settings.dailyMinutes);
   const now = useNow();
+  const hydrated = useHydrated();
+  const palette = useStore((s) => s.settings.palette);
+  const motif = resolvePalette(hydrated ? palette : undefined).motif;
   useOrigin("/", "Today’s plan");
 
   const sheet = SHEET_MAP[activeSheet] ?? SHEETS[0];
@@ -69,30 +94,41 @@ export default function Dashboard() {
   return (
     <div className="mx-auto max-w-[1180px] space-y-8">
       {/* hero */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <section className="panel relative overflow-hidden">
+        <Scene motif={motif} className="absolute inset-0 h-full w-full" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, var(--bg-elev) 0%, color-mix(in srgb, var(--bg-elev) 86%, transparent) 40%, transparent 74%)",
+          }}
+        />
+        <div className="absolute inset-0 sm:hidden" style={{ background: "color-mix(in srgb, var(--bg-elev) 55%, transparent)" }} />
+        <div className="relative flex min-h-[230px] flex-col justify-center gap-4 p-6 sm:p-8">
           <motion.h1
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-extrabold tracking-tight sm:text-[28px]"
+            className="font-display text-[30px] font-bold leading-[1.1] tracking-tight sm:text-[40px]"
           >
             {greeting(now)}
-            {name ? `, ${name}` : ""}. <span className="grad-text">Here is today.</span>
+            {name ? "," : "."}
+            <br />
+            <span style={{ color: "var(--accent)" }}>{name ? `${name}.` : "Here is today."}</span>
           </motion.h1>
-          <p className="mt-1 text-sm text-dim">
+          <p className="max-w-md text-sm text-dim">
             Phase {sheet.name} · {active.solved} of {active.total} solved · plan sized for {dailyMinutes} minutes
           </p>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/revise" className="btn btn-primary">
+              <Icon name="Repeat" size={14} />
+              Review {due.length > 0 ? `(${due.length})` : ""}
+            </Link>
+            <Link href="/arena" className="btn" style={{ background: "var(--panel)" }}>
+              <Icon name="Swords" size={14} /> Mock round
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/revise" className={cx("btn", due.length > 0 && "btn-primary")}>
-            <Icon name="Repeat" size={14} />
-            Review {due.length > 0 ? `(${due.length})` : ""}
-          </Link>
-          <Link href="/arena" className="btn">
-            <Icon name="Swords" size={14} /> Mock round
-          </Link>
-        </div>
-      </div>
+      </section>
 
       <DailyCard />
 
@@ -182,6 +218,7 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-4">
+            <QuoteCard motif={motif} now={now} />
             <div className="panel p-4">
               <div className="mb-2 flex items-center justify-between text-xs">
                 <span className="font-semibold">Budget filled</span>

@@ -4,6 +4,8 @@
 |---|---|
 | `DSA-Prep-User-Guide.pdf` | The user guide. Five A4 pages: setup, the daily loop, working problems, tools and shortcuts, then data, routine and looks. |
 | `user-guide.html` | The source the PDF is rendered from. Edit this, never the PDF. |
+| `screenshots/` | Images used by the top-level README, taken from the production build. |
+| `theme-*.jpeg` | The design references the seven themes were built from. |
 
 ## Regenerating the PDF
 

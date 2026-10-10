@@ -14,6 +14,8 @@ import { PATTERN_MAP } from "@/lib/data/patterns";
 import { TOPIC_MAP } from "@/lib/data/topics";
 import { PROBLEM_MAP } from "@/lib/data/problems";
 import type { Grade } from "@/lib/types";
+import { refresherFor } from "@/lib/data/notes";
+import { RefresherBody } from "@/components/problems/Refresher";
 
 const GRADES: { g: Grade; label: string; body: string; color: string; icon: string }[] = [
   { g: 1, label: "Again", body: "Could not reconstruct it", color: "var(--hard)", icon: "RotateCcw" },
@@ -148,15 +150,15 @@ export default function RevisePage() {
               ) : (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 space-y-3 overflow-hidden">
                   <div className="rounded-xl border border-line-soft bg-panel-2/60 p-3.5">
-                    <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-faint">Approach</div>
-                    <p className="text-sm leading-relaxed">
-                      {current.problem.approach ??
-                        current.problem.patterns.map((p) => PATTERN_MAP[p]?.idea).filter(Boolean)[0] ??
-                        "Recall your own notes for this one."}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {current.problem.time && <Chip icon="Clock">{current.problem.time}</Chip>}
-                      {current.problem.space && <Chip icon="Layers">{current.problem.space}</Chip>}
+                    <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-faint">Quick refresher</div>
+                    {refresherFor(current.problem) ? (
+                      <RefresherBody r={refresherFor(current.problem)!} />
+                    ) : (
+                      <p className="text-sm leading-relaxed">
+                        {current.problem.approach ?? "Recall your own notes for this one."}
+                      </p>
+                    )}
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {current.problem.patterns.map((p) => (
                         <Chip key={p} color="var(--accent)">
                           {PATTERN_MAP[p]?.name ?? p}

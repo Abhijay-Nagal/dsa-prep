@@ -226,9 +226,10 @@
     <p>Needs Node 20 or newer. There is no backend, no database and no environment variables to set.</p>
 
     <div class="note">
-      <b>Install it as an app.</b> Open it in Chrome or Edge and use the install button in the address bar, or accept the
-      in-app prompt. It then opens in its own window, works with no network, and picks up four shortcuts: today's plan,
-      the review queue, visualisers and Blind&nbsp;75.
+      <b>Install it as an app.</b> On a computer, use the install button in the Chrome, Edge or Brave address bar. On an
+      iPhone, tap Share then <em>Add to Home Screen</em> in Safari; on Android, Chrome's menu has <em>Install app</em>.
+      It then opens in its own window and works with no network. Install from the same address you practise on:
+      progress belongs to that address, and Profile → Your data shows which one it is.
     </div>
 
     <h2>First run</h2>
@@ -322,6 +323,11 @@
         <td class="k"><strong>Hint ladder</strong></td>
         <td>Hints reveal one at a time, from a nudge to the full approach. Using fewer hints earns more XP and counts as
           stronger evidence of mastery.</td>
+      </tr>
+      <tr>
+        <td class="k"><strong>Quick refresher</strong></td>
+        <td>Every problem has a one-minute recap: the key idea, the steps, the usual mistake and the complexity. It opens
+          by itself once you have solved the problem, and the note icon on any row shows it in a pop-up.</td>
       </tr>
       <tr>
         <td class="k"><strong>Approach</strong></td>
@@ -445,15 +451,15 @@
           <tr><td class="k"><kbd>Ctrl</kbd> <kbd>K</kbd></td><td>Search everything</td></tr>
           <tr><td class="k"><kbd>/</kbd></td><td>Search everything</td></tr>
           <tr><td class="k"><kbd>f</kbd></td><td>Focus timer</td></tr>
-          <tr><td class="k"><kbd>t</kbd></td><td>Light or dark theme</td></tr>
+          <tr><td class="k"><kbd>t</kbd></td><td>Next theme</td></tr>
           <tr><td class="k"><kbd>?</kbd></td><td>Shortcut cheat sheet</td></tr>
           <tr><td class="k"><kbd>Space</kbd></td><td>Play a visualiser</td></tr>
           <tr><td class="k"><kbd>←</kbd> <kbd>→</kbd></td><td>Step one frame</td></tr>
         </table>
       </div>
     </div>
-    <p style="margin-top:7pt;font-size:9pt;color:var(--soft)">The search box also runs actions: switch theme, change
-      palette, start the focus timer, race two algorithms, or jump to a random problem.</p>
+    <p style="margin-top:7pt;font-size:9pt;color:var(--soft)">The search box also runs actions: pick a theme, start the
+      focus timer, race two algorithms, or jump to a random problem.</p>
 
     
   </div>
@@ -473,6 +479,8 @@
       <li><strong>Same browser:</strong> your streak only counts if you use the same browser profile each day.</li>
       <li><strong>Starting over:</strong> Profile → Reset clears progress. It cannot be undone, so export first.</li>
       <li><strong>Private windows:</strong> storage is cleared when the window closes, so progress will not persist.</li>
+      <li><strong>Done on LeetCode:</strong> the button on every row, or a pasted list in Profile, marks what you have
+        already beaten. It is kept apart from the sheet tick, and those problems are swapped for similar ones.</li>
     </ul>
 
     <h2>A suggested first week</h2>
@@ -495,23 +503,23 @@
     <table>
       <tr><td class="k">Empty dashboard</td><td>Nothing is solved yet. The plan fills in as soon as you mark the first problem.</td></tr>
       <tr><td class="k">Streak reset</td><td>Check you are in the same browser profile. Freezes cover one missed day each, not two.</td></tr>
+      <tr><td class="k">App opens empty</td><td>It was installed from a different address. Profile → Your data shows the one in use; reinstall from the address that has your progress.</td></tr>
       <tr><td class="k">Wizard reappears</td><td>Site data was cleared. Import your exported JSON from Profile.</td></tr>
       <tr><td class="k">No offline mode</td><td>Offline needs the production build: <code>npm run build</code> then <code>npm start</code>.</td></tr>
     </table>
     <h2>Making it yours</h2>
-    <p>Six palettes, in <strong>Profile → Palette</strong> or from the search box. Each sets its own background family
-      as well as its accents, so it is a change of mood rather than a recoloured button. Difficulty colours stay the
+    <p>Seven themes, in <strong>Profile → Settings</strong>, the palette button in the top bar, or <kbd>t</kbd> to cycle.
+      Each one sets the sidebar, the page, the accent and the landscape on the dashboard. Difficulty colours stay the
       same in all of them, because they carry meaning.</p>
-    <div class="phases" style="grid-template-columns:repeat(6,1fr)">
-      <div class="phase" style="background:linear-gradient(120deg,#2b8aff,#8b5cf6)">Nebula<span>default</span></div>
-      <div class="phase" style="background:linear-gradient(120deg,#c026d3,#7c3aed)">Orchid<span>loudest</span></div>
-      <div class="phase" style="background:linear-gradient(120deg,#ff5c4d,#ff2e88)">Sunset<span>warm</span></div>
-      <div class="phase" style="background:linear-gradient(120deg,#0fb9b1,#2b8aff)">Aurora<span>cool</span></div>
-      <div class="phase" style="background:linear-gradient(120deg,#6d5efc,#b15cff)">Indigo<span>original</span></div>
-      <div class="phase" style="background:linear-gradient(120deg,#3b82f6,#6366f1)">Slate<span>quiet</span></div>
+    <div class="phases" style="grid-template-columns:repeat(7,1fr)">
+      <div class="phase" style="background:linear-gradient(120deg,#1f2433,#d9661f)">Amber Sunset<span>default</span></div>
+      <div class="phase" style="background:linear-gradient(120deg,#2a2145,#7b4fe0)">Lavender Dusk<span>light</span></div>
+      <div class="phase" style="background:linear-gradient(120deg,#1d3a2a,#2f6b45)">Mint Forest<span>light</span></div>
+      <div class="phase" style="background:linear-gradient(120deg,#0e3a46,#17809a)">Ocean Cliff<span>light</span></div>
+      <div class="phase" style="background:linear-gradient(120deg,#4d1c25,#c4485a)">Cherry Blossom<span>light</span></div>
+      <div class="phase" style="background:linear-gradient(120deg,#0a1d22,#c98f1c)">Lantern Lake<span>dark</span></div>
+      <div class="phase" style="background:linear-gradient(120deg,#09122a,#3b82f6)">Indigo Night<span>dark</span></div>
     </div>
-    <p style="font-size:9pt;color:var(--soft)">Light mode works with every palette and picks up a wash of its accent.
-      <kbd>t</kbd> switches between light and dark.</p>
   </div>
   <footer><span>DSA Prep — user guide</span><span>Data, routine and looks</span></footer>
 </section>

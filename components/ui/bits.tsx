@@ -2,9 +2,18 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
+import { useHydrated } from "@/hooks/useNow";
 
 export const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
+
+/**
+ * A translucent version of any colour, hex or `var(--x)`. Appending hex alpha
+ * (`${color}1c`) only works for hex and silently produces invalid CSS for a
+ * variable, which is how difficulty badges lost their tint.
+ */
+export const tint = (color: string, pct: number) => `color-mix(in srgb, ${color} ${pct}%, transparent)`;
 
 /* --------------------------------- progress -------------------------------- */
 
@@ -119,7 +128,11 @@ export function Chip({
       className={cx("chip", onClick && "cursor-pointer hover:border-accent/60", className)}
       style={
         color
-          ? { color, borderColor: `${color}55`, background: `${color}14` }
+          ? {
+              color,
+              borderColor: tint(color, 33),
+              background: tint(color, 8),
+            }
           : active
             ? { color: "var(--accent)", borderColor: "var(--accent)", background: "var(--accent-soft)" }
             : undefined
@@ -139,7 +152,7 @@ export function DiffBadge({ d, small }: { d: "Easy" | "Medium" | "Hard"; small?:
         "inline-flex items-center rounded-full font-semibold",
         small ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]",
       )}
-      style={{ color, background: `${color}1c`, border: `1px solid ${color}44` }}
+      style={{ color, background: tint(color, 11), border: `1px solid ${tint(color, 27)}` }}
     >
       {small ? d[0] : d}
     </span>
@@ -188,7 +201,7 @@ export function Stat({
       <div className="flex items-start justify-between gap-2">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-faint">{label}</div>
         {icon && (
-          <div className="grid h-7 w-7 place-items-center rounded-lg" style={{ background: `${color}1c`, color }}>
+          <div className="grid h-7 w-7 place-items-center rounded-lg" style={{ background: tint(color, 11), color }}>
             <Icon name={icon} size={14} />
           </div>
         )}
@@ -277,7 +290,13 @@ export function Modal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  return (
+  // Portalled to <body>: a modal opened from inside a `.panel` would otherwise
+  // be trapped in it, because backdrop-filter makes the panel the containing
+  // block for fixed-position descendants.
+  const hydrated = useHydrated();
+  if (!hydrated) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -307,7 +326,8 @@ export function Modal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
 
@@ -355,7 +375,7 @@ export function SectionTitle({
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">
+        <h2 className="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
           {icon && <Icon name={icon} size={17} className="text-accent" />}
           {title}
         </h2>
@@ -398,7 +418,7 @@ export function Segmented<T extends string>({
             className={cx(
               "relative flex items-center gap-1.5 rounded-[10px] font-semibold transition-colors",
               size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-xs",
-              active ? "text-white" : "text-dim hover:text-text",
+              active ? "on-accent" : "text-dim hover:text-text",
             )}
           >
             {active && (

@@ -11,6 +11,7 @@ import { useStore } from "@/lib/store/useStore";
 import { levelFromXp, levelTitle } from "@/lib/engine/xp";
 import { PROBLEMS } from "@/lib/data/problems";
 import { ratingBand } from "@/lib/engine/mastery";
+import { PALETTES, resolvePalette } from "@/lib/data/palettes";
 
 export const NAV = [
   { href: "/", label: "Dashboard", icon: "LayoutDashboard", hint: "Your plan for today" },
@@ -29,7 +30,20 @@ export const NAV = [
 
 export { useHydrated } from "@/hooks/useNow";
 
-function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
+/**
+ * `dockSpace` keeps the bottom of the desktop sidebar clear for the focus timer
+ * dock, which is fixed to the bottom-left corner and would otherwise sit on top
+ * of the level card.
+ */
+function SidebarInner({
+  collapsed,
+  onNavigate,
+  dockSpace,
+}: {
+  collapsed: boolean;
+  onNavigate?: () => void;
+  dockSpace?: boolean;
+}) {
   const pathname = usePathname();
   const hydrated = useHydratedLocal();
   const xp = useStore((s) => s.xp);
@@ -39,19 +53,20 @@ function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigat
   const lvl = levelFromXp(hydrated ? xp : 0);
 
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
+    <div className={cx("relative flex h-full flex-col gap-3 p-3", dockSpace && "pb-[74px]")}>
+      <SideHills />
       <Link
         href="/"
         onClick={onNavigate}
-        className={cx("flex items-center gap-2.5 rounded-xl px-2 py-2", collapsed && "justify-center px-0")}
+        className={cx("relative flex items-center gap-2.5 rounded-xl px-2 py-2", collapsed && "justify-center px-0")}
       >
         <div className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl grad-bg shadow-[var(--shadow-glow)]">
-          <Icon name="Braces" size={18} className="text-white" />
+          <Icon name="Braces" size={18} className="on-accent" />
         </div>
         {!collapsed && (
           <div className="leading-tight">
             <div className="text-[15px] font-extrabold tracking-tight">
-              DSA <span className="grad-text">Prep</span>
+              DSA <span style={{ color: "var(--side-active-bg)" }}>Prep</span>
             </div>
             <div className="text-[10px] font-medium uppercase tracking-widest text-faint">
               Interview OS
@@ -60,7 +75,7 @@ function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigat
         )}
       </Link>
 
-      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
+      <nav className="relative flex flex-1 flex-col gap-0.5 overflow-y-auto">
         {NAV.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return (
@@ -72,28 +87,32 @@ function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigat
               className={cx(
                 "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium transition-colors",
                 collapsed && "justify-center px-0",
-                active ? "text-text" : "text-dim hover:bg-panel-2 hover:text-text",
+                active ? "font-semibold" : "text-dim hover:bg-panel-2 hover:text-text",
               )}
             >
               {active && (
                 <motion.span
                   layoutId="nav-active"
-                  className="absolute inset-0 rounded-xl border border-accent/40"
-                  style={{ background: "var(--accent-soft)" }}
+                  className="absolute inset-0 rounded-xl shadow-[0_6px_18px_-10px_var(--side-active-bg)]"
+                  style={{ background: "var(--side-active-bg)" }}
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
-              <span className={cx("relative", active && "text-accent")}>
+              <span className="relative" style={active ? { color: "var(--side-active-text)" } : undefined}>
                 <Icon name={item.icon} size={17} />
               </span>
-              {!collapsed && <span className="relative">{item.label}</span>}
+              {!collapsed && (
+                <span className="relative" style={active ? { color: "var(--side-active-text)" } : undefined}>
+                  {item.label}
+                </span>
+              )}
             </Link>
           );
         })}
       </nav>
 
       {!collapsed ? (
-        <div className="panel space-y-3 p-3">
+        <div className="panel relative space-y-3 p-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold">
               Level {lvl.level}
@@ -116,7 +135,7 @@ function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigat
           </div>
         </div>
       ) : (
-        <div className="grid place-items-center pb-2">
+        <div className="relative grid place-items-center pb-2">
           <Ring value={lvl.pct} size={38} stroke={4}>
             <span className="text-[10px] font-bold">{lvl.level}</span>
           </Ring>
@@ -126,31 +145,109 @@ function SidebarInner({ collapsed, onNavigate }: { collapsed: boolean; onNavigat
   );
 }
 
+/** A ridge line at the foot of the sidebar, in a shade just off the sidebar itself. */
+function SideHills() {
+  return (
+    <svg
+      viewBox="0 0 240 120"
+      preserveAspectRatio="xMidYMax slice"
+      className="pointer-events-none absolute inset-x-0 bottom-0 h-44 w-full"
+      aria-hidden="true"
+    >
+      <path d="M0,70 L40,40 L70,58 L110,22 L150,60 L190,34 L240,62 L240,120 L0,120 z" style={{ fill: "var(--side-hill)" }} opacity={0.6} />
+      <path d="M0,92 L50,66 L95,86 L140,58 L185,84 L240,70 L240,120 L0,120 z" style={{ fill: "var(--side-hill)" }} />
+    </svg>
+  );
+}
+
+/** Header button that opens a small grid of the seven themes. */
+function ThemeMenu() {
+  const [open, setOpen] = useState(false);
+  const hydrated = useHydratedLocal();
+  const palette = useStore((s) => s.settings.palette);
+  const setSetting = useStore((s) => s.setSetting);
+  const current = resolvePalette(hydrated ? palette : undefined);
+
+  return (
+    <div className="relative">
+      <button
+        className="btn btn-ghost !px-2"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Change theme"
+        aria-expanded={open}
+        title="Theme (t cycles)"
+      >
+        <Icon name="Palette" size={17} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <>
+            <div className="fixed inset-0 z-[70]" onClick={() => setOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: -6, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.98 }}
+              transition={{ duration: 0.14 }}
+              className="panel absolute right-0 top-11 z-[71] w-64 p-2 shadow-[var(--shadow-lg)]"
+              style={{ background: "var(--bg-elev)" }}
+            >
+              <div className="px-2 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-wider text-faint">Theme</div>
+              {PALETTES.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    setSetting("palette", p.id);
+                    setOpen(false);
+                  }}
+                  className={cx(
+                    "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-panel-2",
+                    current.id === p.id && "bg-panel-2 font-semibold",
+                  )}
+                >
+                  <span className="flex h-5 w-9 shrink-0 overflow-hidden rounded-md border border-line">
+                    {p.swatch.map((c) => (
+                      <span key={c} className="flex-1" style={{ background: c }} />
+                    ))}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                  {current.id === p.id && <Icon name="Check" size={13} className="shrink-0 text-accent" />}
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function Shell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const hydrated = useHydratedLocal();
-  const theme = useStore((s) => s.settings.theme);
   const palette = useStore((s) => s.settings.palette);
-  const setSetting = useStore((s) => s.setSetting);
   const streak = useStore((s) => s.streak);
   const rating = useStore((s) => s.rating);
 
   useEffect(() => {
     if (!hydrated) return;
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.dataset.palette = palette;
-  }, [theme, palette, hydrated]);
+    const pal = resolvePalette(palette);
+    const root = document.documentElement;
+    root.dataset.palette = pal.id;
+    root.dataset.theme = pal.mode;
+    // The installed app's title bar takes the sidebar colour.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", pal.swatch[0]);
+  }, [palette, hydrated]);
 
   return (
     <div className="flex min-h-screen">
       {/* desktop sidebar */}
       <aside
-        className="sticky top-0 hidden h-screen shrink-0 border-r border-line-soft lg:block"
+        className="side sticky top-0 hidden h-screen shrink-0 lg:block"
         style={{ width: collapsed ? 74 : 236, transition: "width .22s cubic-bezier(.22,1,.36,1)" }}
       >
-        <SidebarInner collapsed={collapsed} />
+        <SidebarInner collapsed={collapsed} dockSpace />
       </aside>
 
       {/* mobile drawer */}
@@ -165,8 +262,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
-              className="fixed inset-y-0 left-0 z-[61] w-[252px] border-r border-line lg:hidden"
-              style={{ background: "var(--bg-elev)" }}
+              className="side fixed inset-y-0 left-0 z-[61] w-[252px] lg:hidden"
               initial={{ x: -260 }}
               animate={{ x: 0 }}
               exit={{ x: -260 }}
@@ -235,13 +331,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             >
               <Icon name="Keyboard" size={17} />
             </button>
-            <button
-              className="btn btn-ghost !px-2"
-              onClick={() => setSetting("theme", theme === "dark" ? "light" : "dark")}
-              aria-label="Toggle theme"
-            >
-              <Icon name={theme === "dark" ? "Sun" : "MoonStar"} size={17} />
-            </button>
+            <ThemeMenu />
           </div>
         </header>
 

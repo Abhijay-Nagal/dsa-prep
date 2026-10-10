@@ -1,22 +1,65 @@
 {
+  "id": "/",
   "name": "DSA Prep — Interview OS",
   "short_name": "DSA Prep",
-  "description": "Nested 75/150/250/450 sheets, company lists, animated algorithm visualisers, spaced repetition and an adaptive daily planner.",
+  "description": "Nested 75/150/250/450 sheets, company lists, animated algorithm visualisers, a quick refresher for every problem, spaced repetition and an adaptive daily planner. Works offline.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#060a16",
-  "theme_color": "#060a16",
-  "categories": ["education", "productivity", "developer"],
+  "background_color": "#fbf3ea",
+  "theme_color": "#1f2433",
+  "categories": [
+    "education",
+    "productivity",
+    "developer"
+  ],
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
   ],
   "shortcuts": [
-    { "name": "Today's plan", "url": "/", "description": "Your adaptive daily plan" },
-    { "name": "Review queue", "url": "/revise", "description": "Spaced repetition due today" },
-    { "name": "Visualisers", "url": "/visualize", "description": "Animated algorithms" },
-    { "name": "Blind 75", "url": "/sheets/blind-75", "description": "The core sheet" }
+    {
+      "name": "Today's plan",
+      "url": "/",
+      "description": "Your adaptive daily plan"
+    },
+    {
+      "name": "Review queue",
+      "url": "/revise",
+      "description": "Spaced repetition due today"
+    },
+    {
+      "name": "Visualisers",
+      "url": "/visualize",
+      "description": "Animated algorithms"
+    },
+    {
+      "name": "Blind 75",
+      "url": "/sheets/blind-75",
+      "description": "The core sheet"
+    }
   ]
 }

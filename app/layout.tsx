@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 import { Shell } from "@/components/layout/Shell";
 import { ToastHost } from "@/components/layout/ToastHost";
@@ -8,10 +8,19 @@ import { PwaBoot } from "@/components/layout/PwaBoot";
 import { Onboarding } from "@/components/layout/Onboarding";
 import { FocusTimer } from "@/components/layout/FocusTimer";
 import { Shortcuts } from "@/components/layout/Shortcuts";
+import { DEFAULT_PALETTE, LEGACY_PALETTES, PALETTES } from "@/lib/data/palettes";
 
 const sans = Plus_Jakarta_Sans({
   variable: "--font-sans-var",
   subsets: ["latin"],
+  display: "swap",
+});
+
+/** Serif for the greeting and section headings, as in the theme designs. */
+const display = Fraunces({
+  variable: "--font-display-var",
+  subsets: ["latin"],
+  weight: ["600", "700"],
   display: "swap",
 });
 
@@ -30,7 +39,8 @@ export const metadata: Metadata = {
     "An offline-capable DSA interview trainer: nested 75/150/250/450 sheets, company-specific lists, animated algorithm visualisers, spaced repetition and an adaptive daily planner.",
   applicationName: "DSA Prep",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "DSA Prep" },
+  icons: { apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "DSA Prep" },
   keywords: ["DSA", "interview preparation", "Blind 75", "LeetCode", "algorithm visualiser", "spaced repetition"],
   openGraph: {
     title: "DSA Prep — Interview OS",
@@ -41,32 +51,40 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#060a16" },
-    { media: "(prefers-color-scheme: light)", color: "#f7f8fc" },
-  ],
+  themeColor: "#1f2433",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
 };
 
-/** Applies the stored theme before first paint so there is no flash. */
+/**
+ * Applies the stored theme before first paint so there is no flash. Old
+ * palette ids are mapped to their replacement, and the mode comes from the
+ * theme itself. Both tables are generated from lib/data/palettes.ts.
+ */
+const MODES = Object.fromEntries(PALETTES.map((p) => [p.id, p.mode]));
 const themeScript = `
 try {
+  var modes = ${JSON.stringify(MODES)}, legacy = ${JSON.stringify(LEGACY_PALETTES)};
   var raw = localStorage.getItem('dsa-prep-v1');
   var t = raw ? (JSON.parse(raw).state || {}).settings : null;
-  if (t && t.theme) document.documentElement.dataset.theme = t.theme;
-  if (t && t.palette) document.documentElement.dataset.palette = t.palette;
+  var id = t && t.palette;
+  if (id && !modes[id]) id = legacy[id];
+  if (id && modes[id]) {
+    document.documentElement.dataset.palette = id;
+    document.documentElement.dataset.theme = modes[id];
+  }
 } catch (e) {}
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
+      suppressHydrationWarning
       lang="en"
-      data-theme="dark"
-      data-palette="nebula"
-      className={`${sans.variable} ${mono.variable} h-full antialiased`}
+      data-theme="light"
+      data-palette={DEFAULT_PALETTE}
+      className={`${sans.variable} ${mono.variable} ${display.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

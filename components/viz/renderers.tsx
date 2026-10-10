@@ -5,13 +5,14 @@ import type { VizFrame, VizKind } from "@/lib/types";
 import { cx } from "@/components/ui/bits";
 
 const C = {
-  idle: "#2b3550",
+  // idle and ghost follow the theme, so bars read on light and dark surfaces
+  idle: "color-mix(in srgb, var(--text) 26%, var(--panel))",
   compare: "#ffb020",
   swap: "#ff5f6d",
   done: "#2fd48f",
   active: "#6d5efc",
   window: "#34d3ff",
-  ghost: "#1a2236",
+  ghost: "color-mix(in srgb, var(--text) 9%, var(--panel))",
   pivot: "#b15cff",
   best: "#ffcc4d",
 };
@@ -141,7 +142,7 @@ export function ArrayView({ frame }: { frame: VizFrame }) {
                 className="flex items-start justify-center rounded-t-md pt-1 text-[10px] font-bold"
                 style={{
                   height: `${Math.max(9, h)}%`,
-                  background: `linear-gradient(180deg, ${color}, ${color}88)`,
+                  background: `linear-gradient(180deg, ${color}, color-mix(in srgb, ${color} 53%, transparent))`,
                   boxShadow: color !== C.idle && color !== C.ghost ? `0 0 16px -4px ${color}` : undefined,
                   color: "#0b0f1a",
                 }}

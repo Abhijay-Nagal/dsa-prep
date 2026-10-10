@@ -6,8 +6,10 @@ import { Icon } from "@/components/ui/Icon";
 import { Bar, Chip, Modal, Ring, SectionTitle, Segmented, cx } from "@/components/ui/bits";
 import { ACHIEVEMENTS, TIER_COLOR } from "@/lib/engine/achievements";
 import { useStore } from "@/lib/store/useStore";
-import { PALETTES } from "@/lib/data/palettes";
+import { PALETTES, resolvePalette, type Palette } from "@/lib/data/palettes";
+import { Scene } from "@/components/ui/Scene";
 import { LeetCodeImport } from "@/components/problems/LeetCodeImport";
+import { InstallPanel } from "@/components/layout/InstallPanel";
 import { useHydrated } from "@/components/layout/Shell";
 import { levelFromXp, levelTitle } from "@/lib/engine/xp";
 import { ratingBand } from "@/lib/engine/mastery";
@@ -241,49 +243,20 @@ export default function ProfilePage() {
             <SectionTitle icon="Sparkles" title="Appearance" />
             <div className="space-y-4">
               <div>
-                <span className="mb-2 block text-xs font-semibold">Theme</span>
-                <Segmented
-                  value={settings.theme}
-                  onChange={(v) => setSetting("theme", v)}
-                  options={[
-                    { value: "dark", label: "Dark", icon: "MoonStar" },
-                    { value: "light", label: "Light", icon: "Sun" },
-                  ]}
-                />
-              </div>
-              <div>
-                <span className="mb-1 block text-xs font-semibold">Palette</span>
+                <span className="mb-1 block text-xs font-semibold">Theme</span>
                 <p className="mb-2.5 text-[11px] text-faint">
-                  Each one changes the background family as well as the accents. Difficulty colours never change.
+                  Each theme sets the sidebar, the page, the accent and the landscape on the dashboard. Difficulty colours
+                  never change. Press <kbd className="rounded border border-line px-1 font-mono">t</kbd> anywhere to cycle.
                 </p>
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {PALETTES.map((pal) => {
-                    const active = settings.palette === pal.id;
-                    return (
-                      <button
-                        key={pal.id}
-                        onClick={() => setSetting("palette", pal.id)}
-                        className={cx(
-                          "overflow-hidden rounded-xl border-2 text-left transition-transform hover:-translate-y-0.5",
-                          active ? "border-accent" : "border-line",
-                        )}
-                        title={pal.blurb}
-                      >
-                        <span
-                          className="flex h-10 items-end gap-1 p-2"
-                          style={{ background: pal.bg }}
-                        >
-                          {pal.swatch.map((c) => (
-                            <span key={c} className="h-4 flex-1 rounded" style={{ background: c }} />
-                          ))}
-                        </span>
-                        <span className="flex items-center gap-1.5 bg-panel-2 px-2.5 py-1.5">
-                          <span className="flex-1 truncate text-xs font-semibold">{pal.name}</span>
-                          {active && <Icon name="Check" size={13} className="shrink-0 text-accent" />}
-                        </span>
-                      </button>
-                    );
-                  })}
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {PALETTES.map((pal) => (
+                    <ThemeCard
+                      key={pal.id}
+                      pal={pal}
+                      active={resolvePalette(settings.palette).id === pal.id}
+                      onPick={() => setSetting("palette", pal.id)}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="flex flex-wrap gap-4">
@@ -327,6 +300,7 @@ export default function ProfilePage() {
 
       {tab === "data" && (
         <section className="space-y-4">
+          <InstallPanel />
           <LeetCodeImport />
           <div className="panel p-5">
             <SectionTitle
@@ -433,5 +407,59 @@ export default function ProfilePage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+/**
+ * A live miniature of a theme. `data-preview` makes the theme's CSS block apply
+ * to this subtree only, so it renders in its own colours whatever the page uses.
+ */
+function ThemeCard({ pal, active, onPick }: { pal: Palette; active: boolean; onPick: () => void }) {
+  return (
+    <button
+      data-preview={pal.id}
+      onClick={onPick}
+      aria-pressed={active}
+      className={cx(
+        "group overflow-hidden rounded-xl border-2 text-left transition-transform hover:-translate-y-0.5",
+        active ? "border-accent" : "border-transparent",
+      )}
+      style={{ background: "var(--bg)", color: "var(--text)", boxShadow: "var(--shadow-card)" }}
+      title={pal.blurb}
+    >
+      <span className="flex h-24">
+        <span className="side flex w-[26%] flex-col gap-1.5 p-2">
+          <span className="h-2 w-8 rounded-full" style={{ background: "var(--side-active-bg)" }} />
+          <span className="h-1.5 w-10 rounded-full bg-panel-2" />
+          <span className="h-1.5 w-7 rounded-full bg-panel-2" />
+          <span className="h-1.5 w-9 rounded-full bg-panel-2" />
+        </span>
+        <span className="relative flex-1 overflow-hidden">
+          <Scene motif={pal.motif} className="absolute inset-0 h-full w-full" />
+          <span
+            className="absolute inset-y-0 left-0 w-2/3"
+            style={{ background: "linear-gradient(90deg, var(--bg) 20%, transparent)" }}
+          />
+          <span className="absolute left-2.5 top-3 font-display text-[13px] font-bold leading-tight">
+            Good evening,
+            <br />
+            <span style={{ color: "var(--accent)" }}>you.</span>
+          </span>
+          <span
+            className="absolute bottom-2.5 left-2.5 rounded-md px-2 py-0.5 text-[9px] font-bold"
+            style={{ background: "var(--accent)", color: "var(--on-accent)" }}
+          >
+            Review
+          </span>
+        </span>
+      </span>
+      <span className="flex items-center gap-1.5 border-t border-line px-3 py-2" style={{ background: "var(--panel)" }}>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-xs font-bold">{pal.name}</span>
+          <span className="block truncate text-[10px] text-faint">{pal.mode === "dark" ? "Dark" : "Light"} · {pal.blurb}</span>
+        </span>
+        {active && <Icon name="CheckCircle2" size={15} className="shrink-0 text-accent" />}
+      </span>
+    </button>
   );
 }
