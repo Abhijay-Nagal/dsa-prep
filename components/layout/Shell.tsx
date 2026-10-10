@@ -75,6 +75,8 @@ function SidebarInner({
         )}
       </Link>
 
+      <ThemeMenu collapsed={collapsed} />
+
       <nav className="relative flex flex-1 flex-col gap-0.5 overflow-y-auto">
         {NAV.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -160,8 +162,13 @@ function SideHills() {
   );
 }
 
-/** Header button that opens a small grid of the seven themes. */
-function ThemeMenu() {
+/**
+ * The theme picker, at the top of the sidebar. Expanded, it shows the current
+ * theme by name and opens a list underneath; collapsed, it is an icon that
+ * opens the list to the right. The list sits inside `.side`, so it is drawn in
+ * the sidebar colours.
+ */
+function ThemeMenu({ collapsed }: { collapsed: boolean }) {
   const [open, setOpen] = useState(false);
   const hydrated = useHydratedLocal();
   const palette = useStore((s) => s.settings.palette);
@@ -169,15 +176,33 @@ function ThemeMenu() {
   const current = resolvePalette(hydrated ? palette : undefined);
 
   return (
-    <div className="relative">
+    <div className="relative z-20">
       <button
-        className="btn btn-ghost !px-2"
         onClick={() => setOpen((o) => !o)}
         aria-label="Change theme"
         aria-expanded={open}
         title="Theme (t cycles)"
+        className={cx(
+          "flex w-full items-center gap-2.5 rounded-xl border border-line px-2.5 py-2 text-left text-sm transition-colors hover:bg-panel-2",
+          collapsed && "justify-center px-0",
+          open && "bg-panel-2",
+        )}
       >
-        <Icon name="Palette" size={17} />
+        <Icon name="Palette" size={16} className="shrink-0 text-dim" />
+        {!collapsed && (
+          <>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[10px] font-semibold uppercase tracking-wider text-faint">Theme</span>
+              <span className="block truncate font-semibold">{current.name}</span>
+            </span>
+            <span className="flex h-4 w-7 shrink-0 overflow-hidden rounded border border-line">
+              {current.swatch.map((c) => (
+                <span key={c} className="flex-1" style={{ background: c }} />
+              ))}
+            </span>
+            <Icon name={open ? "ChevronUp" : "ChevronDown"} size={14} className="shrink-0 text-faint" />
+          </>
+        )}
       </button>
       <AnimatePresence>
         {open && (
@@ -188,10 +213,12 @@ function ThemeMenu() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.98 }}
               transition={{ duration: 0.14 }}
-              className="panel absolute right-0 top-11 z-[71] w-64 p-2 shadow-[var(--shadow-lg)]"
-              style={{ background: "var(--bg-elev)" }}
+              className={cx(
+                "absolute z-[71] w-60 rounded-xl border border-line p-2 shadow-[var(--shadow-lg)]",
+                collapsed ? "left-full top-0 ml-2" : "inset-x-0 top-full mt-1.5 w-auto",
+              )}
+              style={{ background: "var(--side-panel)" }}
             >
-              <div className="px-2 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-wider text-faint">Theme</div>
               {PALETTES.map((p) => (
                 <button
                   key={p.id}
@@ -210,7 +237,9 @@ function ThemeMenu() {
                     ))}
                   </span>
                   <span className="min-w-0 flex-1 truncate">{p.name}</span>
-                  {current.id === p.id && <Icon name="Check" size={13} className="shrink-0 text-accent" />}
+                  {current.id === p.id && (
+                    <Icon name="Check" size={13} className="shrink-0" style={{ color: "var(--side-active-bg)" }} />
+                  )}
                 </button>
               ))}
             </motion.div>
@@ -244,7 +273,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       {/* desktop sidebar */}
       <aside
-        className="side sticky top-0 hidden h-screen shrink-0 lg:block"
+        className="side sticky top-0 z-30 hidden h-screen shrink-0 lg:block"
         style={{ width: collapsed ? 74 : 236, transition: "width .22s cubic-bezier(.22,1,.36,1)" }}
       >
         <SidebarInner collapsed={collapsed} dockSpace />
@@ -331,7 +360,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
             >
               <Icon name="Keyboard" size={17} />
             </button>
-            <ThemeMenu />
           </div>
         </header>
 

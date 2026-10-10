@@ -41,7 +41,7 @@ installer, or shows these steps if your browser has none.
 
 - **Seven themes**, each a complete look with its own sidebar, page colours, accent and a drawn landscape on the
   dashboard: Amber Sunset, Lavender Dusk, Mint Forest, Ocean Cliff, Cherry Blossom, Lantern Lake and Indigo Night.
-  Pick one from the palette button in the top bar or in Profile → Settings, or press `t` to cycle.
+  Pick one from the **Theme** picker at the top of the sidebar or in Profile → Settings, or press `t` to cycle.
 - **"Done on LeetCode" on every problem.** Each row has a toggle that starts unselected and turns LeetCode orange when
   you mark it. It's kept separate from the sheet tick, and those problems are swapped for similar ones you haven't done.
   You can also paste your whole solved list in Profile.
@@ -178,7 +178,7 @@ review queue uses it as the answer card.
 **Seven themes.** Each one is a whole look: a dark sidebar, a light or dark page, an accent, a serif greeting and a
 landscape drawn in the theme's own colours (pines at sunset, a lantern-lit pagoda, sea cliffs, cherry blossom, a moonlit
 night). Amber Sunset, Lavender Dusk, Mint Forest, Ocean Cliff and Cherry Blossom are light; Lantern Lake and Indigo Night
-are dark. Pick one from the top bar, Profile or the command palette, or press `t`. Difficulty colours never change,
+are dark. Pick one from the top of the sidebar, Profile or the command palette, or press `t`. Difficulty colours never change,
 because they carry meaning.
 
 **Notebook.** Every note you wrote, everything starred, everything attempted but unfinished, and your recent history —
