@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
-import { Bar, Chip, Ring, Segmented, cx } from "@/components/ui/bits";
+import { Bar, Chip, Ring, Segmented } from "@/components/ui/bits";
 import { TOPICS, TOPIC_MAP, topicPath } from "@/lib/data/topics";
 import { PATTERNS } from "@/lib/data/patterns";
 import { byPattern, byTopic } from "@/lib/data/problems";
@@ -29,8 +29,8 @@ export default function LearnIndex() {
         const problems = byTopic(id);
         const solved = hydrated ? problems.filter((p) => snap.progress[p.id]?.status === "solved").length : 0;
         const m = getMastery(snap, id);
-        const locked = t.prereq.some((p) => getMastery(snap, p).p < 0.35) && m.seen === 0;
-        return { topic: t, total: problems.length, solved, mastery: m.p, locked, vizCount: algosForTopic(id).length };
+        // Every topic is open. The order is a suggestion, not a gate.
+        return { topic: t, total: problems.length, solved, mastery: m.p, vizCount: algosForTopic(id).length };
       }),
     [path, snap, hydrated],
   );
@@ -85,7 +85,7 @@ export default function LearnIndex() {
               >
                 <Link
                   href={`/learn/${t.id}`}
-                  className={cx("panel panel-hover flex flex-wrap items-center gap-4 p-4", row.locked && "opacity-70")}
+                  className="panel panel-hover flex flex-wrap items-center gap-4 p-4"
                   style={{ borderLeft: `3px solid ${t.color}` }}
                 >
                   <div className="flex w-9 shrink-0 justify-center">
@@ -102,11 +102,6 @@ export default function LearnIndex() {
                       <Chip color={masteryColor(row.mastery)} className="!text-[9px]">
                         {masteryLabel(row.mastery)}
                       </Chip>
-                      {row.locked && (
-                        <Chip icon="Lock" className="!text-[9px]">
-                          prerequisites first
-                        </Chip>
-                      )}
                       <span className="text-[10px] text-faint">
                         interview weight {Math.round(t.interviewWeight * 100)}
                       </span>
