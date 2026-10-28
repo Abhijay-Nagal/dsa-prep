@@ -367,7 +367,7 @@ export function SectionTitle({
   icon,
   right,
 }: {
-  title: string;
+  title: React.ReactNode;
   sub?: string;
   icon?: string;
   right?: React.ReactNode;

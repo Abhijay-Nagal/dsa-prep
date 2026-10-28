@@ -26,6 +26,7 @@ const JUMPS: { key: string; href: string; label: string }[] = [
   { key: "r", href: "/revise", label: "Revise" },
   { key: "a", href: "/arena", label: "Arena" },
   { key: "n", href: "/notebook", label: "Notebook" },
+  { key: "h", href: "/history", label: "History" },
   { key: "y", href: "/stats", label: "Analytics" },
   { key: "u", href: "/profile", label: "Profile" },
 ];

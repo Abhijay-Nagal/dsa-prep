@@ -97,7 +97,7 @@ export function CommandPalette() {
       out.push({ ...i, score: s });
     };
 
-    for (const n of NAV) push({ id: `nav-${n.href}`, label: n.label, sub: n.hint, icon: n.icon, href: n.href, group: "Go to" }, n.label);
+    for (const n of NAV) push({ id: `nav-${n.href}`, label: n.label, sub: n.hint, icon: n.icon, href: n.href, group: "Go to" }, `${n.label} ${n.hint ?? ""}`);
 
     const actions: { label: string; sub: string; icon: string; run: () => void }[] = [
       {

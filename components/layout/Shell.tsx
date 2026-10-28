@@ -24,6 +24,7 @@ export const NAV = [
   { href: "/revise", label: "Revise", icon: "Repeat", hint: "Spaced repetition queue" },
   { href: "/arena", label: "Arena", icon: "Swords", hint: "Mock rounds and games" },
   { href: "/notebook", label: "Notebook", icon: "BookOpen", hint: "Your notes, stars and unfinished work" },
+  { href: "/history", label: "History", icon: "History", hint: "Questions you have solved" },
   { href: "/stats", label: "Analytics", icon: "BarChart3", hint: "Mastery and trends" },
   { href: "/profile", label: "Profile", icon: "User", hint: "Achievements and settings" },
 ];
