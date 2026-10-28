@@ -33,6 +33,7 @@ export interface Settings {
   vizSpeed: number;
   showHintsFirst: boolean;
   name: string;
+  historyView?: "all" | "timeline" | "topics" | "lc";
 }
 
 /** What the first-run wizard collects. Seeds the engine so day one is not cold. */
@@ -139,6 +140,7 @@ const defaultSettings: Settings = {
   vizSpeed: 1,
   showHintsFirst: false,
   name: "",
+  historyView: "all",
 };
 
 /** True when the sorted day keys contain a break of two or more days. */

@@ -46,8 +46,8 @@ type TimeRange = "all" | "today" | "7d" | "30d";
 type SortOption = "newest" | "oldest" | "diff-desc" | "diff-asc" | "time-desc" | "confidence-desc" | "title";
 
 const VIEW_OPTIONS: { value: ViewMode; label: string; icon: string }[] = [
-  { value: "timeline", label: "Timeline", icon: "Clock" },
   { value: "all", label: "All Solved", icon: "ListChecks" },
+  { value: "timeline", label: "Timeline", icon: "Clock" },
   { value: "topics", label: "By Topic", icon: "Layers" },
   { value: "lc", label: "LeetCode Done", icon: "BadgeCheck" },
 ];
@@ -126,8 +126,11 @@ export default function HistoryPage() {
 
   const progress = useStore((s) => s.progress);
   const lcSolved = useStore((s) => s.lcSolved);
+  const historyView = useStore((s) => s.settings.historyView);
+  const setSetting = useStore((s) => s.setSetting);
 
-  const [viewMode, setViewMode] = useState<ViewMode>("timeline");
+  const viewMode: ViewMode = hydrated && historyView ? historyView : "all";
+  const setViewMode = (v: ViewMode) => setSetting("historyView", v);
   const [q, setQ] = useState("");
   const [difficulty, setDifficulty] = useState<"all" | Difficulty>("all");
   const [topicFilter, setTopicFilter] = useState<"all" | TopicId>("all");
